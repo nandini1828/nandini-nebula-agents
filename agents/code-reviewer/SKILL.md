@@ -263,6 +263,7 @@ Flag when you see:
 - Symbol-layer mismatches indicate the change skipped the routing-aid update; raw source still wins, but downstream agents lose the shortcut.
 - Per PR, run `python3 {PRODUCT_ROOT}/scripts/kg/diff-impact.py <pr-range>` and attach the `affected_nodes` list to the review notes. Surface canonical nodes the PR description didn't anticipate as a discussion point — not an auto-fail. New internal helpers legitimately have zero callers until the calling code lands; treat zero-caller findings as a reviewer flag, never a gate.
 - For symbol *names* the diff introduces or moves, run `python3 {PRODUCT_ROOT}/scripts/kg/lookup.py --defines <name>` to detect duplicate or near-duplicate surface elsewhere in the codebase. Surface duplicates as a discussion item.
+- When the diff changes the signature, contract, or visibility of an interface member or a base-class method, run `lookup.py --implementers <symbol-id>` (or `--overrides <method-id>`) and confirm every concrete site is updated in the same PR. Missing implementers/overrides are at least **High** severity.
 
 ### 12. Inline Decision Markers
 - Non-obvious change without `// WHY:` (or language equivalent such as `# WHY:` / `* @why`) is a blocker.

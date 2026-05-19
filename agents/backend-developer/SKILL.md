@@ -170,7 +170,10 @@ Also run `python3 {PRODUCT_ROOT}/scripts/kg/lookup.py --symbol <method-name>`
 the symbol record, callers, callees, and sibling symbols on the same canonical
 node, so the edit stays narrow and avoids re-reading the full file. When only the
 caller set is needed for impact analysis, `lookup.py --callers-only <symbol-id>`
-returns the same edge set with no neighborhood/sibling context.
+returns the same edge set with no neighborhood/sibling context. When editing an
+interface member or a base-class virtual, run `lookup.py --implementers <symbol-id>`
+(or `--overrides <method-id>`) to enumerate every concrete site that must move
+with the change.
 
 **Tech Stack:**
 - **Framework:** C# / .NET 10
