@@ -503,7 +503,9 @@ The rollout in §10 is complete. Commits below are on
 | C tag-on | `--implementers` / `--overrides` references in architect, backend, frontend, code-reviewer | Shipped | `980de52` (nebula-agents) |
 | D (validator) | `validate.py --check-coverage-gaps` + `--check-untested` (with `*-as-errors` and exemption flags) | Shipped | `e74aef2` (nebula-insurance-crm) |
 | D (gate + wiring + guide) | `kg_coverage_gap_check` gate in `lifecycle-stage-template.yaml`, quality-engineer SKILL §4 + `actions/test.md` Step 1, full refresh of `symbol-index-guide.md` | Shipped | `e8997a0` (nebula-agents) |
-| D (guide refresh) | `dead-code-review-guide.md` extended to weave the sidecar / coverage-gaps as the automated form of the grep step; grep retained as fallback per §Phase D caution | Shipped | this commit |
+| D (guide refresh) | `dead-code-review-guide.md` extended to weave the sidecar / coverage-gaps as the automated form of the grep step; grep retained as fallback per §Phase D caution | Shipped | `89f0f64` (nebula-agents) |
+| Deferred (item 1, partial) | `instantiates` + `type_refs` edges added to C# and TS extractors; orchestrator gains cross-node `by_top_level_type_name` index; attribute-access deferred on measurement | Shipped | this commit (both repos) |
+| Deferred (item 2) | `signature-search` not implemented; measurement plan documented for `--defines` empty-rate signal over one feature cycle | Documented only | this commit |
 
 Smoke-test reality on the product baseline at the time of shipping:
 
@@ -519,23 +521,35 @@ Smoke-test reality on the product baseline at the time of shipping:
 - `diff-impact.py` against a recent F0020 commit returned 348 changed
   symbols, 35 hop-1/2 callers, and 10 canonical nodes affected.
 
-### Deferred — measurement triggers (unchanged from §11)
+### Deferred — measurement triggers (updated 2026-05-19)
 
 The following remain deferred. Triggers below are what would surface them
 back into scope. Do not pre-decide; the work below is gated on signal,
 not on a deadline.
 
-- **`references` edge kind** (type-refs, attribute-access, instantiation).
-  Trigger: a recurring agent need where caller/callee misses the
-  connection (e.g. a refactor that breaks consumers via a constructor
-  call). Measure edge-count delta on real `symbol-index.yaml` volume
-  before committing.
-- **`signature-search`**. Trigger: Phase C wiring surfaces evidence that
-  duplicate-surface discovery is a recurring pain that `--defines`
-  doesn't cover. After the first feature cycle that exercises the new
-  wiring, check telemetry for the rate of `--defines` calls returning
-  empty when the requesting agent ultimately did find a related symbol
-  by other means.
+- **`references` edge kind — attribute-access subset.** The instantiation
+  and type-ref subsets shipped (commit on this branch; +2,118 edges, 0.5x
+  the existing baseline, cross-node visible). Attribute-access was
+  measured at ~25k edges on the same product (~5.7x baseline) and
+  deferred. Trigger to revisit: agent demand for "which fields/properties
+  reference this entity" that `lookup.py --symbol`, `--implementers`, and
+  the new `instantiates` / `type_refs` arrays can't already satisfy.
+- **`signature-search`.** Trigger: telemetry from `lookup.py` shows
+  `query_kind="defines"` events with `empty_scope=true` accumulating
+  over a feature cycle while agents proceed to find the symbol by other
+  means. Operational measurement plan:
+
+  | Metric | How to read | Action threshold |
+  |---|---|---|
+  | `--defines` empty-result rate | Filter `.kg-state/telemetry.jsonl` by `tool=lookup`, `payload.query_kind=defines`, `payload.empty_scope=true` over one full feature cycle | >30% empty rate → prototype the `name+arity` index variant as a flag on lookup.py |
+  | Recovery path | When `--defines` returns empty, observe what the agent invoked next (typically `grep`, `Read`, or `hint.py --symbol`) | If `grep`/`Read` dominates the recovery path, signature-search is the real gap; if `hint.py` recovers, the issue is naming not signature |
+  | Cost ceiling | Whichever variant we pick, the added telemetry event budget per query stays within the existing `tokens_estimated` envelope | Reject any variant that doubles per-query token cost |
+
+  No design decision pre-committed. The three options remain on the
+  table: regex over `signature` strings, a `name+container+arity`
+  in-memory index, or LLM-aided semantic search. The cheapest variant
+  (name+arity) is likely the first prototype if and when the threshold
+  fires.
 - **Python semantic-engine swap (Jedi or Pyright).** Trigger: a product
   acquires enough Python surface to measure resolution accuracy
   meaningfully. The swap is local to `PythonAstExtractor.extract()` —

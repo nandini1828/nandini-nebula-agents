@@ -114,6 +114,8 @@ symbols:
 | `end_line` | integer | 1-based line number of the declaration's closing brace (or last AST node). Used by `diff-impact.py` to map changed line ranges to symbols. |
 | `is_test` | bool | `true` when the symbol's file matches a `code-index.yaml` binding bucket ending in `.tests` (case-insensitive). Drives `validate.py --check-untested` and the `coverage-gaps` test-source exclusion. |
 | `implements` | string[] | Symbol ids of interface members or base-class methods this symbol satisfies. Empty array stripped from on-disk form. C# and TS emit; Python is `[]` until the semantic-engine swap. |
+| `instantiates` | string[] | Symbol ids of types this symbol constructs (`new T(...)` in C#/TS). Resolved cross-node when the target is a top-level type. Empty array stripped from on-disk form. C# and TS emit; Python is `[]`. |
+| `type_refs` | string[] | Symbol ids of types referenced in the declaration's signature (parameters, return type, property type, generic arguments, type constraints). Built-in / `System.*` / library types skipped to keep the array focused on bound surface. Empty array stripped from on-disk form. C# and TS emit; Python is `[]`. |
 
 Call-edge resolution is per-language:
 
@@ -179,6 +181,41 @@ C# emits `implements` for both interface dispatch and base-class
 override edges. TS emits via heritage clauses (`implements`, `extends`).
 Python records carry `implements: []` until the semantic-engine swap
 lands.
+
+### `instantiates:` and `type_refs:`
+
+Two additional edge arrays sit alongside `callers` / `callees` /
+`implements` to answer questions that semantic call-resolution alone
+cannot:
+
+- `instantiates: [<type-symbol-id>, ...]` — types this symbol constructs
+  via `new T(...)`. Reverse-scan to answer "who instantiates this class?"
+  — the canonical refactor-impact question when a constructor signature
+  changes.
+- `type_refs: [<type-symbol-id>, ...]` — types named in this symbol's
+  declared surface (parameters, return type, property type, generic
+  arguments, type constraints). Reverse-scan to answer "which surfaces
+  reference this type?" — useful for type rename or split refactors.
+
+Edges resolve cross-node when the target is a top-level type (class,
+record, struct, interface, enum, delegate, type alias). Built-in
+primitives, framework anchors (C# `System.*`, TS lib.d.ts, node_modules
+types), and self-edges are dropped. C# and TS emit; Python is `[]`
+until the semantic-engine swap. Both arrays are stripped from on-disk
+form when empty.
+
+The measured edge-count delta on the product baseline was ~0.5x the
+existing total (621 instantiates + 1,497 type_refs vs ~4,400 callers
++ callees + implements). Attribute-access edges were also measured
+(~25k, 5x baseline by themselves) and explicitly deferred until an
+agent need is shown — the cost dominates the marginal value.
+
+There are no dedicated lookup.py reverse-scan flags yet
+(`--instantiated-by`, `--type-referenced-by`). Forward direction is
+already exposed via `lookup.py --symbol` (the record carries both
+arrays). Reverse-scan flags will ship if telemetry shows agents asking
+for them; until then, raw projection over `symbol-index.yaml` is the
+escape hatch.
 
 ---
 
