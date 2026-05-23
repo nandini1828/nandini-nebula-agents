@@ -792,6 +792,35 @@ class TrackerValidator:
             print("  result: FAIL")
 
 
+def _invoke_feature_evidence_validator(
+    product_root: Path, feature: str | None, run_id: str | None
+) -> int:
+    """Call validate-feature-evidence.py at --stage G4.6.
+
+    Per §22 integration rules, tracker validation calls feature-evidence
+    validation only at the pre-closeout candidate stage. Final G4.7 / closeout
+    validation is invoked by the closeout action *after* tracker results are
+    appended to lifecycle-gates.log.
+    """
+    import subprocess
+
+    script = Path(__file__).resolve().parent / "validate-feature-evidence.py"
+    cmd = [
+        sys.executable,
+        str(script),
+        "--product-root",
+        str(product_root),
+        "--stage",
+        "G4.6",
+    ]
+    if feature:
+        cmd.extend(["--feature", feature])
+    if run_id:
+        cmd.extend(["--run-id", run_id])
+    completed = subprocess.run(cmd, check=False)
+    return completed.returncode
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate planning tracker consistency")
     add_product_root_arg(parser)
@@ -805,6 +834,21 @@ def main() -> int:
         default=None,
         help="Path to blueprint file (default: {PRODUCT_ROOT}/planning-mds/BLUEPRINT.md)",
     )
+    parser.add_argument(
+        "--feature",
+        default=None,
+        help="Feature ID (e.g. F0036) to pass through to validate-feature-evidence.py",
+    )
+    parser.add_argument(
+        "--run-id",
+        default=None,
+        help="In-progress run ID to pass through to validate-feature-evidence.py at --stage G4.6",
+    )
+    parser.add_argument(
+        "--skip-feature-evidence",
+        action="store_true",
+        help="Skip the post-tracker call into validate-feature-evidence.py (testing / staged rollout)",
+    )
     args = parser.parse_args()
 
     product_root = resolve_product_root(args.product_root)
@@ -812,7 +856,18 @@ def main() -> int:
     blueprint = Path(args.blueprint) if args.blueprint else product_root / "planning-mds" / "BLUEPRINT.md"
 
     validator = TrackerValidator(features_dir, blueprint)
-    return validator.validate()
+    tracker_exit = validator.validate()
+
+    if args.skip_feature_evidence:
+        return tracker_exit
+
+    # §22 integration: tracker validation calls feature-evidence at --stage G4.6.
+    # Tracker exit code stays authoritative for tracker concerns; feature-evidence
+    # exit is or'd in to surface evidence issues without masking tracker failures.
+    fe_exit = _invoke_feature_evidence_validator(product_root, args.feature, args.run_id)
+    if tracker_exit != 0:
+        return tracker_exit
+    return fe_exit
 
 
 if __name__ == "__main__":
