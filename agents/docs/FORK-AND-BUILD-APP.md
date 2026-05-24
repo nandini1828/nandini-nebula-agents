@@ -100,7 +100,7 @@ From the `nebula-agents` session, use action flow in this sequence:
 3. `review` (Code Reviewer + Security)
 4. `test` and `validate`
 
-Action definitions live in `agents/actions/README.md` in `nebula-agents`.
+Action definitions live in `agents/actions/README.md` in `nebula-agents`. Each run records an evidence package under `{PRODUCT_ROOT}/planning-mds/operations/evidence/`; a completed `feature`/`build` run produces the full feature package (see `agents/docs/AGENT-OPS.md`).
 
 ## Step 7: Run Gates Before PRs
 
@@ -134,5 +134,6 @@ Product-local gates (for example `{PRODUCT_ROOT}/scripts/kg/validate.py`) run fr
 - `agents/actions/README.md`
 - `agents/docs/ONBOARDING.md`
 - `agents/docs/MANUAL-ORCHESTRATION-RUNBOOK.md`
+- `agents/docs/AGENT-OPS.md`
 - `agents/TECH-STACK-ADAPTATION.md`
 - `BOUNDARY-POLICY.md`

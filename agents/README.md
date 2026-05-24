@@ -98,7 +98,7 @@ All framework files live under `nebula-agents/` and are consumed in place from t
 | Path (in nebula-agents) | Purpose |
 |-------------------------|---------|
 | `agents/` (this directory) | Agent roles, actions, templates, scripts, and framework docs |
-| `agents/docs/` | Framework documentation (orchestration contract, onboarding, FAQ, container strategy, agent/action usage guide) |
+| `agents/docs/` | Framework documentation (orchestration contract, evidence/telemetry contract, knowledge graph, onboarding, FAQ, container strategy, agent/action usage guide) |
 | `agents/actions/` | User-facing action compositions (init, plan, build, feature, review, etc.) |
 | `agents/templates/` | Reusable artifact templates (stories, features, ADRs, lifecycle config, CI workflows) |
 | `agents/scripts/` | Framework-level validation and gate scripts |
@@ -127,9 +127,15 @@ for a role — load the task-matched subset.
 
 - **[ROUTER.md](./ROUTER.md)** — maps task types to the specific reference
   files needed. Consult before loading any `references/` file.
-- **[KG tools](./docs/AGENT-USE.md)** — run `python3 {PRODUCT_ROOT}/scripts/kg/hint.py <path>`
-  before searching code, `python3 {PRODUCT_ROOT}/scripts/kg/blast.py <node>` before editing
-  shared entities.
+- **[KNOWLEDGE-GRAPH.md](./docs/KNOWLEDGE-GRAPH.md)** — how the solution
+  knowledge graph works (mental model, file inventory, AST extraction,
+  query CLIs, lifecycle, health checks). Use `hint.py <path>` before
+  code searches and `blast.py <node>` before editing shared semantics.
+- **[AGENT-OPS.md](./docs/AGENT-OPS.md)** — the evidence/telemetry contract
+  every run captures (package shape, gate timeline of who writes what when,
+  manifest, `commands.log` telemetry, verdicts, stage-aware validation,
+  eligibility, waivers). Single source of truth behind
+  `validate-feature-evidence.py`.
 
 ## How to Use
 

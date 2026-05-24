@@ -8,15 +8,13 @@ Yes. The roles and templates are reusable; only stack-specific references and ex
 
 Yes. The framework is domain-agnostic. See `blueprint-setup/examples/` for non-insurance examples.
 
-## What do I copy to start a new project?
+## How do I start a new project?
 
-Copy:
-- `agents/` (includes framework docs, templates, scripts, and all agent roles)
+You do **not** copy `agents/`. The framework is consumed in place: clone `nebula-agents` and your product repo as siblings under a shared workspace root, open a session rooted in `nebula-agents`, and resolve `{PRODUCT_ROOT}` to your product repo (see `agents/docs/AGENT-USE.md` → Session Setup).
 
-Create new:
-- `{PRODUCT_ROOT}/planning-mds/` from scratch
+Run the `init` action from that session. It scaffolds product-side files into `{PRODUCT_ROOT}` — `lifecycle-stage.yaml`, `CONTRIBUTING.md`, a starter CI workflow (`.github/workflows/ci-gates.yml`), and the `planning-mds/` tree — from templates bundled in `agents/`. Boundary policy stays framework-owned in `nebula-agents/BOUNDARY-POLICY.md`; `init` does not scaffold a per-product copy.
 
-The `init` action scaffolds root-level framework files (`lifecycle-stage.yaml`, `BOUNDARY-POLICY.md`, `CONTRIBUTING.md`, starter CI workflow) from templates bundled in `agents/`.
+See `agents/docs/FORK-AND-BUILD-APP.md` for the full walkthrough.
 
 ## Where do I find a step-by-step onboarding checklist?
 

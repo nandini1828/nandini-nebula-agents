@@ -221,12 +221,13 @@ When a feature reaches final approved completion (`Done` with no remaining block
 - `{PRODUCT_ROOT}/planning-mds/knowledge-graph/` (ontology mappings, code-index bindings, coverage report)
 - `{PRODUCT_ROOT}/planning-mds/examples/` (solution-specific examples)
 
-When ontology coverage exists for the target feature or story, run
-`python3 {PRODUCT_ROOT}/scripts/kg/lookup.py <feature-or-story-id>` before broad repo reads.
-Use `--file <repo-path>` to reverse-map an existing code file back into the ontology.
-Treat ontology mappings as compressed retrieval context only; raw feature, glossary,
-ADR, API, and schema artifacts still win on conflict.
-When drafting a PRD, run `lookup.py --defines <central-name>` and `lookup.py --callers-only <central-symbol-id>` on the feature's central canonical node to discover existing capabilities, endpoints, and consumers the PRD should reference or supersede.
+KG query/health semantics and source-precedence rules live in
+`agents/docs/KNOWLEDGE-GRAPH.md`. PM-specific usage: when ontology
+coverage exists, run `lookup.py <feature-or-story-id>` before broad repo
+reads; when drafting a PRD, run `lookup.py --defines <central-name>` and
+`lookup.py --callers-only <central-symbol-id>` on the feature's central
+canonical node to find existing capabilities, endpoints, and consumers
+the PRD should reference or supersede.
 
 **Templates:**
 - `agents/templates/feature-template.md` (PRD template)

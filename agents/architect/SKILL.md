@@ -150,17 +150,23 @@ Your responsibility is to define **HOW** to build what the Product Manager speci
    - Do not duplicate information already in ADRs, BLUEPRINT.md, or feature docs — capture only the non-obvious context that lives between the lines.
 
 14) **Structural knowledge-graph updates**
-   - After creating or approving an ADR, add `rationale:` entries on the canonical nodes whose design the ADR governs. Each entry needs `adr` (canonical ADR node ID), `section` (human-readable anchor), and `summary` (one-line WHY).
-   - After design sessions that introduce new entities, workflows, capabilities, or endpoints, add corresponding canonical nodes in `canonical-nodes.yaml` — not just notes on existing nodes.
-   - After adding canonical nodes or rationale entries, run `python3 {PRODUCT_ROOT}/scripts/kg/validate.py` to confirm no broken references.
-   - When the session produced new code-index-worthy paths (e.g., new API contract files, schema files, architecture docs), add bindings in `code-index.yaml` so future agents can resolve those files to canonical nodes.
-   - On feature close, harvest novel inline decision markers with `python3 {PRODUCT_ROOT}/scripts/kg/decisions.py`. Promote shared semantics into `canonical-nodes.yaml` rationale; leave local implementation reasoning inline.
-   - At each release-readiness checkpoint, review canonical nodes flagged with `bus_factor_flag: true` in `coverage-report.yaml` and propose knowledge-share follow-ups (pair programming, deliberate co-authoring, doc passes, rotation). Thresholds and customers/orders examples live in `agents/architect/references/hotspot-review-guide.md`.
-   - At each release-readiness checkpoint, scan `python3 {PRODUCT_ROOT}/scripts/kg/risk.py` for canonical nodes in the **high** (`kg.risk` ≥ 7) or **critical** (`kg.risk` ≥ 9) bands and propose targeted mitigations (test backfill, refactor splits, knowledge-share follow-ups, or scope splits) before the next feature cycle. Weights and bands live in `agents/architect/references/risk-scoring-guide.md`.
-   - At each release-readiness checkpoint, run `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-orphans` to surface canonical nodes that have no incoming refs and no code-index binding (ontology orphans). For each orphan, decide one of: (a) add a feature mapping or code binding that closes the gap, (b) remove the node if it was premature, or (c) record an exemption in the gate config when the orphan is intentional (rationale anchors, deferred features). Pair this with `python3 {PRODUCT_ROOT}/scripts/kg/dead-code.py --safe-only` to review symbol-level dead-code candidates and resolve or accept each. Thresholds, confidence semantics, and customers/orders examples live in `agents/architect/references/dead-code-review-guide.md`.
-   - Before approving a feature plan, run `python3 {PRODUCT_ROOT}/scripts/kg/diff-impact.py <feature-branch-range>` to verify the plan's claimed blast radius matches the symbol-graph reality. Surfaced canonical nodes outside the plan's stated scope are a signal to widen the plan or narrow the change.
-   - When considering a new canonical node, service, or public method, run `python3 {PRODUCT_ROOT}/scripts/kg/lookup.py --defines <proposed-name>` to surface existing coverage before introducing a duplicate surface. Skip when the name is generic enough that `--defines` will return noise; `lookup.py <feature-id>` usually serves first.
-   - When a feature plan introduces or refactors an interface or base method, run `lookup.py --implementers <interface-symbol-id>` (or `--overrides <method-id>`) and treat the returned set as the scope of the change. A plan that names fewer touch points than `--implementers` reports has missed work.
+
+   KG mental model, file ownership, lifecycle, and CLI reference live in
+   `agents/docs/KNOWLEDGE-GRAPH.md`. The triggers below are when the
+   Architect must act:
+
+   - **After ADR landed**: add `rationale: [{adr, section, summary}]` to every canonical node the ADR governs.
+   - **After introducing entity/workflow/capability/endpoint/schema/role/policy_rule**: add the canonical node to `canonical-nodes.yaml` (not just a note on an existing one).
+   - **After new code-index-worthy paths land** (API contract files, schema files, architecture docs, new services): add globs to `code-index.yaml.node_bindings`.
+   - **After any of the above**: run `validate.py` and confirm exit 0.
+   - **On feature close**: run `decisions.py` to harvest inline KG-DECISION markers; promote shared semantics into `canonical-nodes.yaml` rationale, leave local reasoning inline.
+   - **Before approving a feature plan**: run `diff-impact.py <feature-branch-range>` — canonical nodes surfaced outside the plan's stated scope mean widen the plan or narrow the change.
+   - **When considering a new node, service, or public method name**: run `lookup.py --defines <proposed-name>` to catch duplicate surfaces.
+   - **When refactoring an interface or base method**: run `lookup.py --implementers <interface-symbol-id>` (or `--overrides <method-id>`) — the returned set is the change scope.
+   - **At every release-readiness checkpoint**:
+     - `validate.py --check-orphans` — for each orphan, decide bind / remove / exempt. Pair with `dead-code.py --safe-only` for symbol-level review. Thresholds: `agents/architect/references/dead-code-review-guide.md`.
+     - `risk.py` — surface canonical nodes in the **high** (`kg.risk` ≥ 7) or **critical** (`kg.risk` ≥ 9) bands and propose mitigations. Weights/bands: `agents/architect/references/risk-scoring-guide.md`.
+     - Review `bus_factor_flag: true` entries in `coverage-report.yaml` and propose knowledge-share follow-ups. Thresholds: `agents/architect/references/hotspot-review-guide.md`.
 
 ## Capability Recommendation
 
@@ -192,17 +198,12 @@ Your responsibility is to define **HOW** to build what the Product Manager speci
 - `agents/frontend-developer/SKILL.md` - Understand frontend tech stack and patterns
 - `agents/ai-engineer/SKILL.md` - Understand AI layer capabilities and integration points
 
-When ontology coverage exists for the target feature or story, run
-`python3 {PRODUCT_ROOT}/scripts/kg/lookup.py <feature-or-story-id>` before broad repo reads.
-Use `--file <repo-path>` to reverse-map an existing code file back into the ontology.
-Treat ontology mappings as compressed retrieval context only; raw feature, glossary,
-ADR, API, and schema artifacts still win on conflict.
-
-After design sessions that introduce new aggregate methods or service operations,
-regenerate the symbol layer with `python3 {PRODUCT_ROOT}/scripts/kg/symbols.py`
-(or `validate.py --regenerate-symbols`) and confirm new symbols bind to the right
-canonical node via `lookup.py --symbol <method-name>`. The symbol layer is a
-retrieval aid; raw source remains authoritative.
+For KG query/health semantics and source-precedence rules see
+`agents/docs/KNOWLEDGE-GRAPH.md`. In short: when ontology coverage exists,
+run `lookup.py <feature-or-story-id>` before broad repo reads; after
+design sessions that add new aggregate methods or service operations,
+regenerate symbols (`validate.py --regenerate-symbols`) and confirm
+binding with `lookup.py --symbol <name>`.
 
 ## References
 

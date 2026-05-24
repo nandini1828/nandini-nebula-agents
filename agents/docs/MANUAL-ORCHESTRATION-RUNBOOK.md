@@ -41,6 +41,10 @@ Store all run evidence under:
 
 ## Required Evidence Files
 
+The authoritative artifact list, required headings, and schemas are defined
+in `agents/docs/AGENT-OPS.md` (single source of truth). The list below is
+the operator checklist; AGENT-OPS.md wins on any heading/schema detail.
+
 Every run must include these files:
 
 1. `action-context.md`
@@ -116,20 +120,20 @@ Before publishing a preview release, verify manual-run completeness with:
 
 ## Feature Evidence Contract Notes
 
-Manual / operator-initiated runs of `agents/actions/validate.md`, ad-hoc preflight checks, and release rehearsals follow the §8 base run evidence contract at:
+Which profile a run uses (base run vs. feature package), the full artifact
+set, and the validation stages are defined in `agents/docs/AGENT-OPS.md`.
+The operator-relevant points:
 
-```text
-{PRODUCT_ROOT}/planning-mds/operations/evidence/{RUN_ID}/
-```
-
-They produce the base files (`README.md`, `action-context.md`, `artifact-trace.md`, `gate-decisions.md`, `commands.log`, `lifecycle-gates.log`) but do **not** produce `evidence-manifest.json`. The feature-evidence profile (§9, §10) applies only to feature completion runs.
-
-The three validate-action reports (`pm-validation-report.md`, `architect-validation-report.md`, `implementation-validation-report.md`) live in the manual-run base path, not inside any feature evidence package. See §14 for their headings and the `agents/templates/*-validation-report-template.md` skeletons.
-
-Closeout actions for feature completion (`agents/actions/feature.md`, and `agents/actions/build.md` when it archives a delivered feature) always produce feature runs at:
-
-```text
-{PRODUCT_ROOT}/planning-mds/operations/evidence/F####-{slug}/{RUN_ID}/
-```
-
-and follow the §17 patch-then-publish supersession order — `patch-prior-manifest.py` first, then `latest-run.json` — never the reverse.
+- Manual / operator-initiated runs (`agents/actions/validate.md`, ad-hoc
+  preflight, release rehearsals) use the **base run** profile at
+  `{PRODUCT_ROOT}/planning-mds/operations/evidence/{RUN_ID}/` — the six base
+  files, no `evidence-manifest.json`. The three validate-action reports
+  (`pm-validation-report.md`, `architect-validation-report.md`,
+  `implementation-validation-report.md`) live here, not in a feature package.
+- Feature completion closeouts (`agents/actions/feature.md`, and
+  `agents/actions/build.md` when it archives a delivered feature) produce the
+  full **feature package** at
+  `{PRODUCT_ROOT}/planning-mds/operations/evidence/F####-{slug}/{RUN_ID}/`.
+- At closeout, the supersession order is mandatory: run
+  `patch-prior-manifest.py` **first**, then write `latest-run.json` — never
+  the reverse (see AGENT-OPS.md → The Gate Timeline).

@@ -14,7 +14,7 @@ The framework runs from a session rooted in `nebula-agents`. The product repo is
     nebula-agents/          # session working directory (this repo)
     <product-repo>/         # implementation target, e.g. nebula-insurance-crm
   ```
-- [ ] `WORKSPACE_ROOT` must be outside the source `nebula-crm` backup root.
+- [ ] `WORKSPACE_ROOT` must sit outside any other repo.
 - [ ] Read `README.md` and `CONSUMER-CONTRACT.md` in `nebula-agents`.
 - [ ] Read `BOUNDARY-POLICY.md` in `nebula-agents`.
 - [ ] Review `agents/docs/AGENT-USE.md` (Session Setup section for `{PRODUCT_ROOT}` resolution).

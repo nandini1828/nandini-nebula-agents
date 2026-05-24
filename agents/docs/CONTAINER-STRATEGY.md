@@ -12,9 +12,8 @@ Purpose:
 - Provides a reproducible execution environment for running framework workflows.
 
 Contains:
-- `agents/`
+- `agents/` (roles, actions, templates, and `agents/scripts/` framework scripts)
 - `blueprint-setup/`
-- `scripts/`
 - framework documentation
 
 Does not contain:

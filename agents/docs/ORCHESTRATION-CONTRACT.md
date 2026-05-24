@@ -498,12 +498,15 @@ def retry_with_backoff(agent_fn, max_retries=3):
 
 ## 8. Auditability
 
-- Keep execution traceable by referencing:
-  - which action was run
-  - which roles were activated
-  - which artifacts were read/written
-  - which approval decisions were made
-- In manual mode, store evidence for each run using `agents/docs/MANUAL-ORCHESTRATION-RUNBOOK.md`.
+Every orchestrated run must be traceable: which action ran, which roles
+were activated, which artifacts were read/written, and which gate decisions
+were made. That trace is captured as a structured **evidence package**.
+
+The evidence/telemetry contract — package shape, the gate timeline of who
+writes what when, the manifest, the `commands.log` telemetry schema,
+verdicts, stage-aware validation, eligibility, and waivers — is defined in
+**`agents/docs/AGENT-OPS.md`** (single source of truth). In manual mode,
+follow `agents/docs/MANUAL-ORCHESTRATION-RUNBOOK.md` for the run procedure.
 
 ## 9. Runtime Independence
 

@@ -137,18 +137,30 @@ These roles have minimal references. Load on demand — no routing needed.
 
 ## KG Tools
 
-Before searching code or assessing impact, use the knowledge-graph CLI tools
-(documented in `agents/docs/AGENT-USE.md` § KG CLI Tools):
+Task-to-tool routing only. The full CLI reference, mental model, lifecycle
+triggers, and failure modes live in `agents/docs/KNOWLEDGE-GRAPH.md`.
 
 | When | Command |
 |------|---------|
 | Before searching code | `python3 {PRODUCT_ROOT}/scripts/kg/hint.py <path>` |
 | Before editing shared entities/workflows | `python3 {PRODUCT_ROOT}/scripts/kg/blast.py <node-or-file>` |
-| When starting feature work | `python3 {PRODUCT_ROOT}/scripts/kg/lookup.py <feature-id>` (use `--tier`, `--fields`, and `--allow-missing` as needed) |
+| Starting feature work | `python3 {PRODUCT_ROOT}/scripts/kg/lookup.py <feature-id>` (see KNOWLEDGE-GRAPH.md for `--tier`, `--fields`, `--allow-missing`) |
 | After ontology changes | `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift` |
-| Starting a long session | `python3 {PRODUCT_ROOT}/scripts/kg/workstate.py --state-file <path> init --role <role> --scope <id> --run-id <uuid>` |
-| After a key decision | `python3 {PRODUCT_ROOT}/scripts/kg/workstate.py --state-file <path> decision "<summary>" --topic <slug>` |
-| When retrieval is insufficient | `python3 {PRODUCT_ROOT}/scripts/kg/workstate.py --state-file <path> escalate "<reason>" --nodes <id> ... --opened-raw <path> ...` |
-| After compaction | `python3 {PRODUCT_ROOT}/scripts/kg/workstate.py --state-file <path> dump --compact` |
-| Hub/impact analysis | `python3 {PRODUCT_ROOT}/scripts/kg/pagerank.py --top 20` |
-| Undeclared structural edges | `python3 {PRODUCT_ROOT}/scripts/kg/cochange.py --top 20 --coverage-gaps` |
+| Long session start / decisions / escalations / post-compaction | `python3 {PRODUCT_ROOT}/scripts/kg/workstate.py …` (see KNOWLEDGE-GRAPH.md for subcommands) |
+| Hub / risk / undeclared-edge analysis | `pagerank.py`, `risk.py`, `cochange.py --coverage-gaps` (see KNOWLEDGE-GRAPH.md) |
+
+---
+
+## Evidence / Ops
+
+Task-to-tool routing only. The full contract — package shape, gate timeline
+of who writes what when, manifest, `commands.log` telemetry, verdicts,
+eligibility, and waivers — lives in `agents/docs/AGENT-OPS.md`.
+
+| When | Command |
+|------|---------|
+| Validate evidence mid-run (G0–G4.5) | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature F#### --run-id <run-id> --stage <Gn>` |
+| Final closeout validation | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature F#### --stage closeout` (see AGENT-OPS.md for the stage matrix) |
+| Closeout supersession (before writing `latest-run.json`) | `python3 agents/product-manager/scripts/patch-prior-manifest.py --product-root {PRODUCT_ROOT} --feature F#### --new-run-id <run-id>` |
+| Run lifecycle gates (writes `lifecycle-gates.log`) | `python3 agents/scripts/run-lifecycle-gates.py` |
+| New run artifact / report | copy the matching skeleton from `agents/templates/` (see AGENT-OPS.md → Package Anatomy) |
