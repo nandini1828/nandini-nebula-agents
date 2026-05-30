@@ -51,8 +51,20 @@ CONTEXT LOADING ORDER:
 3. agents/docs/AGENT-USE.md
 4. agents/actions/plan.md
 5. {PRODUCT_ROOT}/planning-mds/features/REGISTRY.md (confirm FEATURE_ID is reserved or new)
-6. {PRODUCT_ROOT}/planning-mds/BLUEPRINT.md (domain context)
-7. {PRODUCT_ROOT}/planning-mds/knowledge-graph/solution-ontology.yaml (architectural context)
+6. {PRODUCT_ROOT}/planning-mds/features/ROADMAP.md
+7. {PRODUCT_ROOT}/planning-mds/BLUEPRINT.md (domain context)
+8. {PRODUCT_ROOT}/planning-mds/knowledge-graph/solution-ontology.yaml (architectural context)
+9. {PRODUCT_ROOT}/planning-mds/knowledge-graph/canonical-nodes.yaml
+10. {PRODUCT_ROOT}/planning-mds/knowledge-graph/feature-mappings.yaml
+11. {PRODUCT_ROOT}/planning-mds/knowledge-graph/code-index.yaml
+12. {PRODUCT_ROOT}/planning-mds/knowledge-graph/coverage-report.yaml
+13. {PRODUCT_ROOT}/planning-mds/features/F{NNNN}-{slug}/** when the feature folder exists
+
+ON-DEMAND PATHS (only when linked by lookup, required by the current gate, or required by drift repair):
+- {PRODUCT_ROOT}/planning-mds/api/<openapi-spec>.yaml
+- {PRODUCT_ROOT}/planning-mds/security/authorization-matrix.md
+- {PRODUCT_ROOT}/planning-mds/security/policies/policy.csv
+- agents/<role>/references/** only after a matching agents/ROUTER.md row
 
 FORBIDDEN:
 - Generating {PLAN_RUN_ID} with uuid4 or any non-contract format
@@ -61,17 +73,20 @@ FORBIDDEN:
 - Creating a feature evidence package at {FEATURE_EVIDENCE_ROOT}/ during plan
 - Skipping APPROVAL or ONTOLOGY SYNC gates
 - Editing canonical-nodes.yaml or solution-ontology.yaml outside the Architect phase
+- Treating lookup/KG mappings as authoritative over raw artifacts
+- Climbing past max_auto_tier without recording a workstate.py escalate event
 
 OWNERSHIP:
-- product-manager (Phase A) owns: PRD.md, persona files, acceptance criteria, story breakdown, initial STATUS.md skeleton
-- architect (Phase B) owns: feature-assembly-plan.md, ADRs, API contract updates, schema updates, canonical-nodes.yaml updates, solution-ontology.yaml updates, feature-mappings.yaml additions
+- product-manager owns Phase A: PRD.md, persona files, acceptance criteria, story breakdown, initial STATUS.md skeleton
+- architect owns Phase B: feature-assembly-plan.md, ADRs, API contract updates, schema updates, canonical-nodes.yaml updates, solution-ontology.yaml updates, feature-mappings.yaml additions
+- implementation agents do not run during plan; other roles flag drift but do not silently redefine canonical shared semantics
 
 GATES:
-- A0  PM REQUIREMENTS DRAFT — PRD, personas, acceptance criteria, story breakdown
-- A1  PM APPROVAL GATE — user reviews requirements; PM records decision in gate-decisions.md
-- B0  ARCHITECT ARCHITECTURE — feature-assembly-plan.md, ADRs, API/schema updates, ontology bindings
-- B1  ONTOLOGY SYNC GATE — feature-mappings.yaml + canonical-nodes.yaml + solution-ontology.yaml aligned with the assembly plan; `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift` exit 0
-- B2  ARCHITECT APPROVAL GATE — user reviews architecture; architect records decision in gate-decisions.md
+- `G1 CLARIFICATION` — Step 1.5 Requirements Clarification (PM resolves open requirement questions before approval)
+- `G2 TRACKER SYNC (A)` — Step 1.75 Mandatory tracker synchronization (REGISTRY.md / ROADMAP.md / BLUEPRINT.md / STORY-INDEX.md) before Phase A approval
+- `G3 PHASE A APPROVAL` — Step 2 user reviews requirements; PM records decision in gate-decisions.md
+- `G4 ONTOLOGY SYNC (B)` — Step 3.5 feature-mappings.yaml + canonical-nodes.yaml + solution-ontology.yaml aligned with the assembly plan; `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift` exit 0
+- `G5 PHASE B APPROVAL` — Step 4 user reviews architecture; architect records decision in gate-decisions.md
 
 EVIDENCE OUTPUTS (in {PLAN_RUN_FOLDER}):
 - README.md (Run Summary, Status, Evidence Index, Validation Summary, Open Follow-ups)
@@ -98,8 +113,11 @@ STOP CONDITIONS:
 - Canonical node edit attempted outside Architect role
 
 EXIT VALIDATION (run in order; all exit 0):
-- `python3 agents/product-manager/scripts/validate-trackers.py` (with FEATURE_ID context if applicable)
+- `python3 agents/product-manager/scripts/validate-stories.py {FEATURE_PATH}`
 - `python3 agents/product-manager/scripts/generate-story-index.py {PRODUCT_ROOT}/planning-mds/features/`
+- `python3 agents/product-manager/scripts/validate-trackers.py` (with FEATURE_ID context if applicable)
+- IF KG changed: `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --write-coverage-report`
+- `python3 {PRODUCT_ROOT}/scripts/kg/validate.py`
 - `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift`
 - `python3 agents/scripts/validate_templates.py`
 - NOTE: do NOT call validate-feature-evidence.py at plan — there is no feature evidence package yet

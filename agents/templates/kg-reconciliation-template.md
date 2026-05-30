@@ -1,6 +1,6 @@
 # Knowledge-Graph Reconciliation — F####-{slug} run {run-id}
 
-> Required at gate `G4.65` per §10. Authored by the **Architect** after signoff (`G4.5`) and candidate validation (`G4.6`), before PM closeout (`G4.7`). Reconciles the **semantic** knowledge-graph (`code-index.yaml` bindings, `canonical-nodes.yaml`) against the **as-built** source — what actually shipped — so the graph the next feature's architect reads at G0 is correct. Architect-owned. Binds **code** paths only (stable across the closeout archive move); the path-sensitive `coverage-report.yaml` regeneration is a `G4.7` step, after the move.
+> Required at gate `G7` per §10. Authored by the **Architect** after signoff (`G5`) and candidate validation (`G6`), before PM closeout (`G8`). Reconciles the **semantic** knowledge-graph (`code-index.yaml` bindings, `canonical-nodes.yaml`) against the **as-built** source — what actually shipped — so the graph the next feature's architect reads at G0 is correct. Architect-owned. Binds **code** paths only (stable across the closeout archive move); the path-sensitive `coverage-report.yaml` regeneration is a `G8` step, after the move.
 
 ## Scope
 
@@ -30,8 +30,8 @@ New `canonical-nodes.yaml` nodes or `WHY` rationale entries introduced by this f
 | symbol regen + check | `validate.py --regenerate-symbols --check-symbols` | PASS (exit 0) |
 | drift | `validate.py --check-drift` | PASS (exit 0) |
 
-`coverage-report.yaml` was **not** regenerated at this gate (deferred to `G4.7`, after the archive move binds the relocated feature-doc paths).
+`coverage-report.yaml` was **not** regenerated at this gate (deferred to `G8`, after the archive move binds the relocated feature-doc paths).
 
 ## Handoff to Closeout
 
-Confirm the semantic graph is green and ready for PM closeout to **verify** (not re-author). If a binding gap is found during closeout, it routes back here for a `G4.65` delta pass.
+Confirm the semantic graph is green and ready for PM closeout to **verify** (not re-author). If a binding gap is found during closeout, it routes back here for a `G7` delta pass.

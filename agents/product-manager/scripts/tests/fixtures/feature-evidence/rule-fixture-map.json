@@ -44,7 +44,7 @@
   "latest_run_wrong_manifest_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_uses_latest_run_when_run_id_omitted_passes"],
+    "positive_fixtures": ["stage_g6_uses_latest_run_when_run_id_omitted_passes"],
     "negative_fixtures": ["latest_run_wrong_manifest_fails"]
   },
   "manifest_bad_run_id_fails": {
@@ -74,7 +74,7 @@
   "missing_latest_run_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_uses_latest_run_when_run_id_omitted_passes"],
+    "positive_fixtures": ["stage_g6_uses_latest_run_when_run_id_omitted_passes"],
     "negative_fixtures": ["missing_latest_run_fails"]
   },
   "missing_manifest_fails": {
@@ -137,29 +137,29 @@
     "positive_fixtures": ["active_in_progress_ignored_passes"],
     "negative_fixtures": ["secret_patterns_unloadable_fails"]
   },
-  "stage_g4_6_run_id_mismatch_with_latest_run_fails": {
+  "stage_g6_run_id_mismatch_with_latest_run_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_candidate_with_run_id_before_latest_run_passes"],
-    "negative_fixtures": ["stage_g4_6_run_id_mismatch_with_latest_run_fails"]
+    "positive_fixtures": ["stage_g6_candidate_with_run_id_before_latest_run_passes"],
+    "negative_fixtures": ["stage_g6_run_id_mismatch_with_latest_run_fails"]
   },
-  "stage_g4_6_without_run_id_or_latest_run_fails": {
+  "stage_g6_without_run_id_or_latest_run_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_candidate_with_run_id_before_latest_run_passes"],
-    "negative_fixtures": ["stage_g4_6_without_run_id_or_latest_run_fails", "stage_no_sorted_run_inference_fails"]
+    "positive_fixtures": ["stage_g6_candidate_with_run_id_before_latest_run_passes"],
+    "negative_fixtures": ["stage_g6_without_run_id_or_latest_run_fails", "stage_no_sorted_run_inference_fails"]
   },
-  "stage_g4_7_run_id_mismatch_fails": {
+  "stage_g8_run_id_mismatch_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_uses_latest_run_when_run_id_omitted_passes"],
-    "negative_fixtures": ["stage_g4_7_run_id_mismatch_fails"]
+    "positive_fixtures": ["stage_g6_uses_latest_run_when_run_id_omitted_passes"],
+    "negative_fixtures": ["stage_g8_run_id_mismatch_fails"]
   },
-  "stage_without_run_id_before_g4_6_fails": {
+  "stage_without_run_id_before_g6_fails": {
     "owner_phase": "Phase 1",
     "status": "active",
     "positive_fixtures": ["stage_g0_allows_later_reports_pending_passes"],
-    "negative_fixtures": ["stage_without_run_id_before_g4_6_fails"]
+    "negative_fixtures": ["stage_without_run_id_before_g6_fails"]
   },
 
   "missing_g0_fails": {
@@ -432,23 +432,23 @@
     "positive_fixtures": ["complete_runtime_feature_passes"],
     "negative_fixtures": ["gate_decisions_missing_stage_required_row_fails"]
   },
-  "gate_decisions_missing_g4_5_fails": {
+  "gate_decisions_missing_g5_fails": {
     "owner_phase": "Phase 2a",
     "status": "active",
     "positive_fixtures": ["complete_runtime_feature_passes"],
-    "negative_fixtures": ["gate_decisions_missing_g4_5_fails"]
+    "negative_fixtures": ["gate_decisions_missing_g5_fails"]
   },
-  "gate_decisions_missing_g4_6_fails": {
+  "gate_decisions_missing_g6_fails": {
     "owner_phase": "Phase 2a",
     "status": "active",
     "positive_fixtures": ["complete_runtime_feature_passes"],
-    "negative_fixtures": ["gate_decisions_missing_g4_6_fails"]
+    "negative_fixtures": ["gate_decisions_missing_g6_fails"]
   },
-  "gate_decisions_missing_g4_7_fails": {
+  "gate_decisions_missing_g8_fails": {
     "owner_phase": "Phase 2a",
     "status": "active",
     "positive_fixtures": ["complete_runtime_feature_passes"],
-    "negative_fixtures": ["gate_decisions_missing_g4_7_fails"]
+    "negative_fixtures": ["gate_decisions_missing_g8_fails"]
   },
   "two_approved_runs_without_supersession_fails": {
     "owner_phase": "Phase 2a",
@@ -780,13 +780,13 @@
   "latest_run_absolute_path_fails": {
     "owner_phase": "Phase 2b",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_uses_latest_run_when_run_id_omitted_passes"],
+    "positive_fixtures": ["stage_g6_uses_latest_run_when_run_id_omitted_passes"],
     "negative_fixtures": ["latest_run_absolute_path_fails"]
   },
   "latest_run_bad_status_fails": {
     "owner_phase": "Phase 2b",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_uses_latest_run_when_run_id_omitted_passes"],
+    "positive_fixtures": ["stage_g6_uses_latest_run_when_run_id_omitted_passes"],
     "negative_fixtures": ["latest_run_bad_status_fails"]
   },
   "manifest_rerun_of_unknown_run_fails": {
@@ -825,11 +825,11 @@
     "positive_fixtures": ["complete_security_sensitive_feature_passes"],
     "negative_fixtures": ["security_scan_reference_missing_fails"]
   },
-  "stage_g4_7_requires_tracker_results_fails": {
+  "stage_g8_requires_tracker_results_fails": {
     "owner_phase": "Phase 2b",
     "status": "active",
     "positive_fixtures": ["stage_closeout_after_tracker_results_passes"],
-    "negative_fixtures": ["stage_g4_7_requires_tracker_results_fails"]
+    "negative_fixtures": ["stage_g8_requires_tracker_results_fails"]
   },
   "test_results_reference_missing_fails": {
     "owner_phase": "Phase 2b",
@@ -879,16 +879,16 @@
     "positive_fixtures": ["path_class_case_sensitive_no_match_passes"],
     "negative_fixtures": ["scope_boolean_false_with_changed_paths_fails"]
   },
-  "stage_g4_6_candidate_null_closeout_path_passes": {
+  "stage_g6_candidate_null_closeout_path_passes": {
     "owner_phase": "Phase 2b",
     "status": "active",
-    "positive_fixtures": ["stage_g4_6_candidate_with_run_id_before_latest_run_passes"],
+    "positive_fixtures": ["stage_g6_candidate_with_run_id_before_latest_run_passes"],
     "negative_fixtures": ["manifest_closeout_path_missing_fails"]
   },
   "stage_closeout_after_tracker_results_passes": {
     "owner_phase": "Phase 2b",
     "status": "active",
     "positive_fixtures": ["complete_runtime_feature_passes"],
-    "negative_fixtures": ["stage_g4_7_requires_tracker_results_fails"]
+    "negative_fixtures": ["stage_g8_requires_tracker_results_fails"]
   }
 }

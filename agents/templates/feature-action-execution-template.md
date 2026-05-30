@@ -1,10 +1,10 @@
 # Feature Action Execution — F####-{slug} run {run-id}
 
-> Required at G4.6 per §10. Captures the orchestrator's per-gate execution log.
+> Required at G6 per §10. Captures the orchestrator's per-gate execution log.
 
 ## Gate
 
-Current/final gate reached: `G0` / `G1` / `G2` / `G3` / `G4.5` / `G4.6` / `G4.7` / `closeout`.
+Current/final gate reached: `G0` / `G1` / `G2` / `G3` / `G5` / `G6` / `G8` / `closeout`.
 
 ## Execution Timeline
 

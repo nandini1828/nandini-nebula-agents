@@ -119,6 +119,6 @@ Done / Archived governed features must cite canonical feature evidence package f
 
 - Story signoff `Evidence` paths must resolve under `{PRODUCT_ROOT}/planning-mds/operations/evidence/F####-{slug}/{RUN_ID}/...`.
 - The feature evidence root must carry an approved `latest-run.json` (§12).
-- `validate-trackers.py` calls `validate-feature-evidence.py --stage G4.6` after tracker validation; final `G4.7`/`closeout` validation runs by the closeout action after tracker results are logged. This non-circular sequence is mandatory.
+- `validate-trackers.py` calls `validate-feature-evidence.py --stage G6` after tracker validation; final `G8`/`closeout` validation runs by the closeout action after tracker results are logged. This non-circular sequence is mandatory.
 - Retired features (`Terminal Status = Abandoned` or `Superseded`) are registry-only and never satisfy completion-evidence requirements.
 - For the product effective-date baseline, see `feature-evidence-package-standardization-plan-v2.md` §27.

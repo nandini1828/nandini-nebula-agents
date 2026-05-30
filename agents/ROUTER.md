@@ -159,7 +159,7 @@ eligibility, and waivers — lives in `agents/docs/AGENT-OPS.md`.
 
 | When | Command |
 |------|---------|
-| Validate evidence mid-run (G0–G4.5) | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature F#### --run-id <run-id> --stage <Gn>` |
+| Validate evidence mid-run (G0–G5) | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature F#### --run-id <run-id> --stage <Gn>` |
 | Final closeout validation | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature F#### --stage closeout` (see AGENT-OPS.md for the stage matrix) |
 | Closeout supersession (before writing `latest-run.json`) | `python3 agents/product-manager/scripts/patch-prior-manifest.py --product-root {PRODUCT_ROOT} --feature F#### --new-run-id <run-id>` |
 | Run lifecycle gates (writes `lifecycle-gates.log`) | `python3 agents/scripts/run-lifecycle-gates.py` |

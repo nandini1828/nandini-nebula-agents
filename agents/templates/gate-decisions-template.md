@@ -10,8 +10,8 @@
 | G1   | PASS     | DevOps    | 2026-05-19T10:30:00-04:00 | Runtime preflight green | No | - |
 | G2   | PASS     | QE        | 2026-05-19T11:00:00-04:00 | All AC covered, coverage ≥ target | No | - |
 | G3   | PASS     | Code Reviewer | 2026-05-19T11:30:00-04:00 | No blocking findings | No | - |
-| G4.5 | PASS     | PM        | 2026-05-19T12:00:00-04:00 | Signoff matrix complete | No | - |
-| G4.6 | PASS     | PM        | 2026-05-19T12:15:00-04:00 | Candidate evidence validated | No | - |
-| G4.7 | PASS     | PM        | 2026-05-19T12:30:00-04:00 | Closeout sealed | No | - |
+| G5 | PASS     | PM        | 2026-05-19T12:00:00-04:00 | Signoff matrix complete | No | - |
+| G6 | PASS     | PM        | 2026-05-19T12:15:00-04:00 | Candidate evidence validated | No | - |
+| G8 | PASS     | PM        | 2026-05-19T12:30:00-04:00 | Closeout sealed | No | - |
 
 Decisions: `PASS`, `PASS WITH RECOMMENDATIONS`, `FAIL`, `SKIP`. Blocking values: `Yes` / `No`.

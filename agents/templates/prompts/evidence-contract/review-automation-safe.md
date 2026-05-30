@@ -93,5 +93,5 @@ EXIT VALIDATION:
 
 CONFLICT RESOLUTION:
 - code review APPROVED but security review FAIL → blocking; resolve in same change set or escalate
-- review reports disagree with manifest role_results → fix manifest at G4.5 signoff; reports are authoritative
+- review reports disagree with manifest role_results → fix manifest at G5 signoff; reports are authoritative
 - review attempts on a feature whose G2 has not yet passed → halt; out of sequence

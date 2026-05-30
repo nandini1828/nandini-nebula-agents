@@ -795,10 +795,10 @@ class TrackerValidator:
 def _invoke_feature_evidence_validator(
     product_root: Path, feature: str | None, run_id: str | None
 ) -> int:
-    """Call validate-feature-evidence.py at --stage G4.6.
+    """Call validate-feature-evidence.py at --stage G6.
 
     Per §22 integration rules, tracker validation calls feature-evidence
-    validation only at the pre-closeout candidate stage. Final G4.7 / closeout
+    validation only at the pre-closeout candidate stage. Final G8 / closeout
     validation is invoked by the closeout action *after* tracker results are
     appended to lifecycle-gates.log.
     """
@@ -811,7 +811,7 @@ def _invoke_feature_evidence_validator(
         "--product-root",
         str(product_root),
         "--stage",
-        "G4.6",
+        "G6",
     ]
     if feature:
         cmd.extend(["--feature", feature])
@@ -842,7 +842,7 @@ def main() -> int:
     parser.add_argument(
         "--run-id",
         default=None,
-        help="In-progress run ID to pass through to validate-feature-evidence.py at --stage G4.6",
+        help="In-progress run ID to pass through to validate-feature-evidence.py at --stage G6",
     )
     parser.add_argument(
         "--skip-feature-evidence",
@@ -861,7 +861,7 @@ def main() -> int:
     if args.skip_feature_evidence:
         return tracker_exit
 
-    # §22 integration: tracker validation calls feature-evidence at --stage G4.6.
+    # §22 integration: tracker validation calls feature-evidence at --stage G6.
     # Tracker exit code stays authoritative for tracker concerns; feature-evidence
     # exit is or'd in to surface evidence issues without masking tracker failures.
     fe_exit = _invoke_feature_evidence_validator(product_root, args.feature, args.run_id)

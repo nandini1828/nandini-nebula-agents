@@ -1,6 +1,6 @@
 # PM Closeout — F####-{slug} run {run-id}
 
-> Required at G4.7/closeout per §10. PM-owned. Final approval artifact.
+> Required at G8/closeout per §10. PM-owned. Final approval artifact.
 
 ## Final Story Status
 

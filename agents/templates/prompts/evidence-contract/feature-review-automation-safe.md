@@ -30,7 +30,7 @@ SESSION_SETUP:
 - Initialize base run files per section 8: README.md, action-context.md, artifact-trace.md, gate-decisions.md, commands.log, lifecycle-gates.log
 
 PRECONDITIONS:
-- feature.md reached G4.6 or G4.7 for FEATURE_ID
+- feature.md reached G6 or G8 for FEATURE_ID
 - MODE=closeout-audit: EVIDENCE_ROOT/latest-run.json exists unless FEATURE_RUN_ID intentionally targets an older run
 - MODE=candidate-audit: FEATURE_RUN_ID is set and FEATURE_RUN_FOLDER exists
 - DIFF_RANGE or explicit changed-file set can identify the changed files
@@ -68,7 +68,7 @@ REQUIRED TOOL INVOCATIONS:
   closeout-audit:
     1. python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --stage closeout
   candidate-audit:
-    1. python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G4.6
+    1. python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G6
   always:
     2. python3 agents/product-manager/scripts/validate-trackers.py
     3. python3 agents/product-manager/scripts/generate-story-index.py {PRODUCT_ROOT}/planning-mds/features/    # when story files changed

@@ -106,9 +106,9 @@ trackers reconciled.
 
 ## Modes
 
-- `closeout-audit` (default): run after `feature.md` G4.7 closeout and
+- `closeout-audit` (default): run after `feature.md` G8 closeout and
   `latest-run.json` publication.
-- `candidate-audit`: run after `feature.md` G4.6 candidate validation but
+- `candidate-audit`: run after `feature.md` G6 candidate validation but
   before final closeout. In this mode, missing `latest-run.json` and final
   archive transitions are expected but must be listed as pending closeout items.
 
@@ -266,7 +266,7 @@ For `candidate-audit`, use the feature action's in-progress stage command
 instead of closeout validation:
 
 ```text
-python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G4.6
+python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G6
 ```
 
 If a command is not applicable, record why. If a command cannot run, record the
@@ -391,7 +391,7 @@ Review Question: Is this feature truly done?
 
 ## Prerequisites
 
-- [ ] `feature.md` has reached G4.6 or G4.7 for the target feature.
+- [ ] `feature.md` has reached G6 or G8 for the target feature.
 - [ ] Feature evidence run ID is known or resolvable from `latest-run.json`.
 - [ ] Changed-file set or diff range is available.
 - [ ] User has identified whether the review is a `candidate-audit` or

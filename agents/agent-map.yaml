@@ -321,7 +321,7 @@ actions:
   feature-review:
     doc: agents/actions/feature-review.md
     description: Independently review a completed feature and decide whether it is truly done
-    prerequisites: [feature action reached G4.6 or G4.7, changed-file set available]
+    prerequisites: [feature action reached G6 or G8, changed-file set available]
     steps:
       - parallel:
           - product-manager

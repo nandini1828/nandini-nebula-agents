@@ -93,7 +93,7 @@ BASE_FILES = {
     "artifact-trace.md": "# Artifact Trace\n\n## Artifacts Read\n\n## Artifacts Created Or Updated\n\n## Generated Evidence\n\n## External Or Global Evidence References\n\n## Omissions And Waivers\n",
     "gate-decisions.md": "# Gate Decisions\n\n| Gate | Decision | Decider | Timestamp | Rationale | Blocking | Follow-up |\n|---|---|---|---|---|---|---|\n| G0 | PASS | Architect | 2026-05-19 | ok | No | - |\n",
     "commands.log": "",
-    "lifecycle-gates.log": "# Lifecycle Gate Run\n\n## Command\n\nvalidate-trackers.py\n\n## Stage\n\nG4.7\n\n## Exit Code\n\n0\n\n## Result\n\ntracker-sync PASS\n\n## Output References\n\n## Skipped Gates\n",
+    "lifecycle-gates.log": "# Lifecycle Gate Run\n\n## Command\n\nvalidate-trackers.py\n\n## Stage\n\nG8\n\n## Exit Code\n\n0\n\n## Result\n\ntracker-sync PASS\n\n## Output References\n\n## Skipped Gates\n",
     "g0-assembly-plan-validation.md": "# G0\n\nResult: PASS\n",
 }
 
@@ -118,12 +118,12 @@ def default_gate_results(stage: str, runtime_bearing: bool) -> dict[str, Any]:
     }
     if runtime_bearing:
         gates["runtime_preflight"] = {"required": True, "result": "PASS", "artifact": "g1-runtime-preflight.md"}
-    if stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         gates["self_review"] = {"required": True, "result": "PASS", "artifact": "g2-self-review.md"}
         gates["deployability"] = {"required": True, "result": "PASS", "artifact": "deployability-check.md"}
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G5", "G6", "G8", "closeout"}:
         gates["signoff"] = {"required": True, "result": "PASS", "artifact": "signoff-ledger.md"}
-    if stage in {"G4.7", "closeout"}:
+    if stage in {"G8", "closeout"}:
         gates["pm_closeout"] = {"required": True, "result": "APPROVED", "artifact": "pm-closeout.md"}
         gates["tracker_sync"] = {"required": True, "result": "PASS", "artifact": "lifecycle-gates.log"}
     return gates
@@ -134,14 +134,14 @@ def default_role_results(stage: str, manifest: dict[str, Any]) -> dict[str, Any]
     runtime_bearing = bool(manifest.get("runtime_bearing"))
     security = bool(manifest.get("security_sensitive_scope")) or "Security Reviewer" in manifest.get("required_roles", [])
     devops = bool(manifest.get("deployment_config_changed")) or "DevOps" in manifest.get("required_roles", [])
-    if stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         roles["Quality Engineer"] = {
             "required": True,
             "result": "PASS",
             "required_artifacts": ["test-plan.md", "test-execution-report.md", "coverage-report.md"],
             "verdict_artifact": "test-execution-report.md",
         }
-    if stage in {"G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G3", "G5", "G6", "G8", "closeout"}:
         roles["Code Reviewer"] = {
             "required": True,
             "result": "APPROVED",
@@ -155,7 +155,7 @@ def default_role_results(stage: str, manifest: dict[str, Any]) -> dict[str, Any]
                 "required_artifacts": ["security-review-report.md"],
                 "verdict_artifact": "security-review-report.md",
             }
-    if devops and stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if devops and stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         artifacts = ["deployability-check.md"]
         if runtime_bearing:
             artifacts = ["g1-runtime-preflight.md", "deployability-check.md"]
@@ -172,7 +172,7 @@ def write_status_md(feature_path: Path, feature_id: str, run_folder_rel: str, re
     """Write a STATUS.md with a Required Role Matrix + one current passing row per role for a single story."""
     feature_path.mkdir(parents=True, exist_ok=True)
     matrix = "\n".join(f"| {role} | Yes |" for role in required_roles)
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G5", "G6", "G8", "closeout"}:
         rows = "\n".join(
             f"| {feature_id}-S0001 | {role} | reviewer | PASS | {run_folder_rel}/test-execution-report.md | 2026-05-19 | - |"
             for role in required_roles
@@ -263,7 +263,7 @@ def write_manifest_run(
             "\n".join(str(p) for p in manifest.get("changed_paths", []) if isinstance(p, str)) + "\n",
             encoding="utf-8",
         )
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G5", "G6", "G8", "closeout"}:
         # Honor the registry's `Folder` column when the closeout path is archived.
         closeout = manifest.get("feature_path_at_closeout") or f"planning-mds/features/{feature_slug}"
         feature_path = product_root / closeout
@@ -313,18 +313,18 @@ def write_artifacts(run_folder: Path, manifest: dict[str, Any], stage: str = "G0
         (run_folder / "commands.log").write_text(log_line + "\n", encoding="utf-8")
 
     gate_rows = ["G0"]
-    if stage in {"G1", "G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G1", "G2", "G3", "G5", "G6", "G8", "closeout"}:
         gate_rows.append("G1")
-    if stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         gate_rows.append("G2")
-    if stage in {"G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G3", "G5", "G6", "G8", "closeout"}:
         gate_rows.append("G3")
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
-        gate_rows.append("G4.5")
-    if stage in {"G4.6", "G4.7", "closeout"}:
-        gate_rows.append("G4.6")
-    if stage in {"G4.7", "closeout"}:
-        gate_rows.append("G4.7")
+    if stage in {"G5", "G6", "G8", "closeout"}:
+        gate_rows.append("G5")
+    if stage in {"G6", "G8", "closeout"}:
+        gate_rows.append("G6")
+    if stage in {"G8", "closeout"}:
+        gate_rows.append("G8")
     header = "# Gate Decisions\n\n| Gate | Decision | Decider | Timestamp | Rationale | Blocking | Follow-up |\n|---|---|---|---|---|---|---|\n"
     body = "".join(f"| {gate} | PASS | role | 2026-05-19 | ok | No | - |\n" for gate in gate_rows)
     (run_folder / "gate-decisions.md").write_text(header + body, encoding="utf-8")
@@ -332,17 +332,17 @@ def write_artifacts(run_folder: Path, manifest: dict[str, Any], stage: str = "G0
     extra: list[str] = []
     if manifest.get("runtime_bearing"):
         extra.append("g1-runtime-preflight.md")
-    if stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         extra += ["g2-self-review.md", "test-plan.md", "test-execution-report.md", "coverage-report.md", "deployability-check.md"]
-    if stage in {"G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G3", "G5", "G6", "G8", "closeout"}:
         extra.append("code-review-report.md")
         if manifest.get("security_sensitive_scope") or "Security Reviewer" in manifest.get("required_roles", []):
             extra.append("security-review-report.md")
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G5", "G6", "G8", "closeout"}:
         extra.append("signoff-ledger.md")
-    if stage in {"G4.6", "G4.7", "closeout"}:
+    if stage in {"G6", "G8", "closeout"}:
         extra.append("feature-action-execution.md")
-    if stage in {"G4.7", "closeout"}:
+    if stage in {"G8", "closeout"}:
         extra.append("pm-closeout.md")
     for filename in extra:
         (run_folder / filename).write_text(ROLE_FILES[filename], encoding="utf-8")
@@ -483,29 +483,29 @@ def test_stage_resolution_and_manifest_phase_one_rules(tmp_path: Path) -> None:
     write_manifest_run(product, "F0001-new", "F0001")
 
     assert run_validator(product, "--feature", "F0001", "--run-id", RUN_ID, "--stage", "G0", "--json").returncode == 0
-    assert_rule(run_validator(product, "--feature", "F0001", "--stage", "G0", "--json"), "stage_without_run_id_before_g4_6_fails", 1)
+    assert_rule(run_validator(product, "--feature", "F0001", "--stage", "G0", "--json"), "stage_without_run_id_before_g6_fails", 1)
     assert_rule(
         run_validator(product, "--feature", "F0001", "--run-id", "2026-05-19-aaaaaaaa", "--stage", "G0", "--json"),
         "run_folder_not_found_fails",
         1,
     )
-    assert_rule(run_validator(product, "--feature", "F0001", "--stage", "G4.6", "--json"), "stage_g4_6_without_run_id_or_latest_run_fails", 1)
+    assert_rule(run_validator(product, "--feature", "F0001", "--stage", "G6", "--json"), "stage_g6_without_run_id_or_latest_run_fails", 1)
 
 
-def test_g4_6_latest_resolution_and_mismatch_rules(tmp_path: Path) -> None:
+def test_g6_latest_resolution_and_mismatch_rules(tmp_path: Path) -> None:
     product = tmp_path / "product"
     write_registry(product, archived="| F0001 | New Feature | 2026-05-19 |  | `archive/F0001-new/` |")
-    write_manifest_run(product, "F0001-new", "F0001", status="approved", latest=True, stage="G4.6")
+    write_manifest_run(product, "F0001-new", "F0001", status="approved", latest=True, stage="G6")
 
-    assert run_validator(product, "--feature", "F0001", "--stage", "G4.6", "--json").returncode == 0
+    assert run_validator(product, "--feature", "F0001", "--stage", "G6", "--json").returncode == 0
     assert_rule(
-        run_validator(product, "--feature", "F0001", "--stage", "G4.6", "--run-id", "2026-05-19-aaaaaaaa", "--json"),
-        "stage_g4_6_run_id_mismatch_with_latest_run_fails",
+        run_validator(product, "--feature", "F0001", "--stage", "G6", "--run-id", "2026-05-19-aaaaaaaa", "--json"),
+        "stage_g6_run_id_mismatch_with_latest_run_fails",
         1,
     )
     assert_rule(
-        run_validator(product, "--feature", "F0001", "--stage", "G4.7", "--run-id", "2026-05-19-aaaaaaaa", "--json"),
-        "stage_g4_7_run_id_mismatch_fails",
+        run_validator(product, "--feature", "F0001", "--stage", "G8", "--run-id", "2026-05-19-aaaaaaaa", "--json"),
+        "stage_g8_run_id_mismatch_fails",
         1,
     )
 
@@ -575,8 +575,8 @@ def test_is_terminal_active_uses_exact_match(tmp_path: Path) -> None:
         assert finding["feature"] not in {"F0001", "F0002", "F0003"}, finding
 
 
-def test_g4_6_unparseable_latest_with_run_id_does_not_emit_mismatch(tmp_path: Path) -> None:
-    """Regression: when latest-run.json is unparseable but --run-id is supplied at G4.6,
+def test_g6_unparseable_latest_with_run_id_does_not_emit_mismatch(tmp_path: Path) -> None:
+    """Regression: when latest-run.json is unparseable but --run-id is supplied at G6,
     the validator must emit latest_run_wrong_manifest_fails (unloadable) and stop —
     not let the run_folder code path subsequently overwrite or hide that signal."""
     product = tmp_path / "product"
@@ -584,11 +584,11 @@ def test_g4_6_unparseable_latest_with_run_id_does_not_emit_mismatch(tmp_path: Pa
     run_folder = write_manifest_run(product, "F0001-new", "F0001", status="approved", latest=True)
     (run_folder.parent / "latest-run.json").write_text("{", encoding="utf-8")
 
-    result = run_validator(product, "--feature", "F0001", "--stage", "G4.6", "--run-id", RUN_ID, "--json")
+    result = run_validator(product, "--feature", "F0001", "--stage", "G6", "--run-id", RUN_ID, "--json")
     payload = json_result(result)
     rules = [item["rule_id"] for item in payload["errors"]]
     assert "latest_run_wrong_manifest_fails" in rules, payload
-    assert "stage_g4_6_run_id_mismatch_with_latest_run_fails" not in rules, payload
+    assert "stage_g6_run_id_mismatch_with_latest_run_fails" not in rules, payload
     assert result.returncode == 1
 
 
@@ -639,9 +639,9 @@ SECTION_23_REQUIRED_FIXTURES: list[str] = [
     "retired_superseded_skipped_passes",
     "with_recommendations_accepted_passes",
     "stage_g0_allows_later_reports_pending_passes",
-    "stage_g4_6_candidate_with_run_id_before_latest_run_passes",
-    "stage_g4_6_uses_latest_run_when_run_id_omitted_passes",
-    "stage_g4_6_candidate_null_closeout_path_passes",
+    "stage_g6_candidate_with_run_id_before_latest_run_passes",
+    "stage_g6_uses_latest_run_when_run_id_omitted_passes",
+    "stage_g6_candidate_null_closeout_path_passes",
     "stage_closeout_after_tracker_results_passes",
     "evidence_only_rerun_with_rerun_of_passes",
     "prior_run_marked_superseded_on_new_approval_passes",
@@ -662,7 +662,7 @@ SECTION_23_REQUIRED_FIXTURES: list[str] = [
     "manifest_unknown_waiver_key_without_pm_acceptance_fails",
     "manifest_changed_path_traversal_fails", "manifest_file_path_absolute_fails",
     "manifest_file_path_traversal_fails", "manifest_scm_diff_path_malformed_fails",
-    "stage_g4_6_run_id_mismatch_with_latest_run_fails", "cli_json_flags_conflict_fails",
+    "stage_g6_run_id_mismatch_with_latest_run_fails", "cli_json_flags_conflict_fails",
     "cli_run_id_malformed_fails", "cli_product_root_invalid_fails",
     "feature_not_in_registry_fails", "registry_missing_fails",
     "registry_required_section_missing_fails", "secret_patterns_invalid_secondary_class_fails",
@@ -681,17 +681,17 @@ SECTION_23_REQUIRED_FIXTURES: list[str] = [
     "status_evidence_outside_package_fails", "recommendation_no_pm_acceptance_fails",
     "commands_log_malformed_json_fails", "commands_log_secret_pattern_fails",
     "secret_patterns_unloadable_fails", "secret_patterns_conflict_fails",
-    "latest_run_wrong_manifest_fails", "stage_without_run_id_before_g4_6_fails",
-    "stage_g4_6_without_run_id_or_latest_run_fails", "stage_no_sorted_run_inference_fails",
-    "stage_g4_7_requires_tracker_results_fails", "pm_role_required_missing_report_fails",
-    "gate_decisions_missing_g4_6_fails", "gate_decisions_missing_g4_7_fails",
+    "latest_run_wrong_manifest_fails", "stage_without_run_id_before_g6_fails",
+    "stage_g6_without_run_id_or_latest_run_fails", "stage_no_sorted_run_inference_fails",
+    "stage_g8_requires_tracker_results_fails", "pm_role_required_missing_report_fails",
+    "gate_decisions_missing_g6_fails", "gate_decisions_missing_g8_fails",
     "manifest_rerun_of_unknown_run_fails", "manifest_empty_changed_paths_without_rerun_of_fails",
-    "stage_g4_7_run_id_mismatch_fails", "manifest_final_approved_with_non_terminal_state_fails",
+    "stage_g8_run_id_mismatch_fails", "manifest_final_approved_with_non_terminal_state_fails",
     "two_approved_runs_without_supersession_fails", "validator_defect_waiver_missing_followup_fails",
 
     # §23 additional inventory
     "missing_readme_heading_fails", "action_context_wrong_feature_fails", "artifact_trace_missing_global_ref_fails",
-    "gate_decisions_missing_g4_5_fails", "lifecycle_gates_missing_exit_code_fails",
+    "gate_decisions_missing_g5_fails", "lifecycle_gates_missing_exit_code_fails",
     "manifest_bad_schema_version_fails", "manifest_bad_status_fails", "manifest_bad_recorded_on_fails",
     "manifest_bad_effective_date_fails", "manifest_bad_start_path_fails", "manifest_closeout_path_missing_fails",
     "manifest_slug_mismatch_fails", "manifest_missing_changed_paths_fails", "manifest_changed_path_absolute_fails",

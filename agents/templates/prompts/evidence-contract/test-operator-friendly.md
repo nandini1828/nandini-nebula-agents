@@ -57,7 +57,7 @@ Follow these gates exactly:
 - `T4 QUALITY GATE` — coverage and pass-rate thresholds met or waiver accepted
 - `T5 STAGE VALIDATION` (feature-scoped only) — `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G2` exit 0
 
-Stop immediately if `coverage-report.md` is missing (`missing_coverage_report_fails`), if `test-execution-report.md` is missing (`missing_test_execution_fails`), if `test-plan.md` is missing (`missing_test_plan_fails`), or if `INSUFFICIENT_CONTEXT` occurs. A coverage waiver that lacks PM acceptance is caught later at G4.7 (`coverage_waiver_missing_pm_acceptance_fails`).
+Stop immediately if `coverage-report.md` is missing (`missing_coverage_report_fails`), if `test-execution-report.md` is missing (`missing_test_execution_fails`), if `test-plan.md` is missing (`missing_test_plan_fails`), or if `INSUFFICIENT_CONTEXT` occurs. A coverage waiver that lacks PM acceptance is caught later at G8 (`coverage_waiver_missing_pm_acceptance_fails`).
 
 Close the run:
 - For feature-scoped: `validate-feature-evidence.py --feature {FEATURE_ID} --run-id {RUN_ID} --stage G2` exit 0
@@ -67,4 +67,4 @@ Resolve conflicts like this:
 - coverage target met but a story has no test → fail; add a test or document the AC exception
 - coverage report exists but raw artifacts missing → fail (`coverage_claim_without_artifact_fails`)
 - `test-execution-report.md` cites an artifact path that does not resolve → fail (`test_results_reference_missing_fails`)
-- coverage waiver missing PM acceptance at closeout → resolved by G4.7
+- coverage waiver missing PM acceptance at closeout → resolved by G8

@@ -50,7 +50,7 @@ Follow these gates exactly:
   - DevOps checks runtime/deployability evidence when `RUN_DEVOPS=yes` or `auto` resolves to yes
 - `FR2 VALIDATOR PASS` - run applicable validator commands and append every command to `commands.log`:
   - closeout audit: `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --stage closeout`
-  - candidate audit: `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G4.6`
+  - candidate audit: `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {FEATURE_RUN_ID} --stage G6`
   - `python3 agents/product-manager/scripts/validate-trackers.py`
   - `python3 agents/product-manager/scripts/generate-story-index.py {PRODUCT_ROOT}/planning-mds/features/` when story files changed
   - `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-symbols`

@@ -1,7 +1,7 @@
 ACTION: agents/actions/test.md
 CONTRACT: feature-evidence-package-standardization-plan-v2.md (effective 2026-05-19)
 CONTRACT SCOPE: Test can run in two modes:
-  (a) feature-scoped: writes test-plan.md, test-execution-report.md, coverage-report.md INTO an existing feature run folder; the parent feature action drives G2 and G4.5
+  (a) feature-scoped: writes test-plan.md, test-execution-report.md, coverage-report.md INTO an existing feature run folder; the parent feature action drives G2 and G5
   (b) standalone: writes QE reports under a base run evidence folder; does NOT produce a feature evidence package
 
 REQUIRED INPUTS (operator must set before SESSION_SETUP):
@@ -99,7 +99,7 @@ STOP CONDITIONS:
 - coverage-report.md missing (rule missing_coverage_report_fails)
 - test-execution-report.md missing (rule missing_test_execution_fails)
 - test-plan.md missing (rule missing_test_plan_fails)
-- coverage waiver requested without PM acceptance at closeout (handled at G4.7)
+- coverage waiver requested without PM acceptance at closeout (handled at G8)
 - INSUFFICIENT_CONTEXT
 
 EXIT VALIDATION:
@@ -110,4 +110,4 @@ CONFLICT RESOLUTION:
 - coverage target met but story has no test → fail; add test or document AC exception
 - coverage report exists but raw artifacts missing → fail (rule coverage_claim_without_artifact_fails)
 - test-execution-report.md cites artifact path that does not resolve → fail (rule test_results_reference_missing_fails)
-- waiver in coverage-report.md missing PM acceptance at closeout → handled by G4.7 rule coverage_waiver_missing_pm_acceptance_fails
+- waiver in coverage-report.md missing PM acceptance at closeout → handled by G8 rule coverage_waiver_missing_pm_acceptance_fails

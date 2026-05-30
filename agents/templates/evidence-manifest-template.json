@@ -28,7 +28,7 @@
     "Code Reviewer"
   ],
   "gate_results": {
-    "_comment": "Gate results are appended as each gate passes (self_review@G2, deployability@G2, signoff@G4.5, kg_reconciliation@G4.65, pm_closeout@G4.7, tracker_sync@G4.7). kg_reconciliation is REQUIRED at closeout when contract_effective_date >= 2026-06-01: {\"required\": true, \"result\": \"PASS\", \"artifact\": \"kg-reconciliation.md\"} (architect G4.65 semantic-graph bind; PASS-style verdict).",
+    "_comment": "Gate results are appended as each gate passes (self_review@G2, deployability@G2, signoff@G5, kg_reconciliation@G7, pm_closeout@G8, tracker_sync@G8). kg_reconciliation is REQUIRED at closeout when contract_effective_date >= 2026-06-01: {\"required\": true, \"result\": \"PASS\", \"artifact\": \"kg-reconciliation.md\"} (architect G7 semantic-graph bind; PASS-style verdict).",
     "assembly_plan_validation": {
       "required": true,
       "result": "PASS",

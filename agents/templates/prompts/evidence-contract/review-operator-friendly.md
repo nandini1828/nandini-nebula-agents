@@ -58,5 +58,5 @@ Close the run:
 
 Resolve conflicts like this:
 - code review APPROVED but security review FAIL → blocking; resolve in same change set or escalate
-- review reports disagree with manifest `role_results` → fix the manifest at G4.5; reports are authoritative
+- review reports disagree with manifest `role_results` → fix the manifest at G5; reports are authoritative
 - review attempted on a feature whose G2 has not yet passed → halt; out of sequence

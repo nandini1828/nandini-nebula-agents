@@ -55,7 +55,7 @@ CONTEXT LOADING ORDER:
 FORBIDDEN:
 - Generating {BUILD_RUN_ID} or any feature {RUN_ID} with uuid4
 - Closing a feature without a canonical feature evidence package at {EVIDENCE_ROOT}/latest-run.json with status="approved"
-- Calling tracker sync (validate-trackers.py) before per-feature G4.6 candidate validation has passed for every feature being closed in this build
+- Calling tracker sync (validate-trackers.py) before per-feature G6 candidate validation has passed for every feature being closed in this build
 - Writing per-feature role reports (g0-*, test-*, code-review-*, etc.) into {BUILD_RUN_FOLDER} instead of the feature run folder
 - Using the build run folder as a substitute for any feature's evidence package
 - Marking a feature Archived in REGISTRY.md while its {EVIDENCE_ROOT}/latest-run.json is missing or non-approved
@@ -64,9 +64,9 @@ FORBIDDEN:
 REQUIRED TOOL INVOCATIONS:
 - For each FEATURE_ID in BUILD_SCOPE that does NOT yet have an approved feature evidence package:
   1. Invoke the feature action prompt (evidence-contract/feature-automation-safe.md) for that FEATURE_ID with a fresh {RUN_ID}
-  2. Run through G0–G4.6 candidate to produce the package
+  2. Run through G0–G6 candidate to produce the package
 - For each FEATURE_ID in BUILD_SCOPE:
-  `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G4.6` exit 0
+  `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G6` exit 0
 - Then (per build, once):
   `python3 agents/product-manager/scripts/validate-trackers.py` exit 0
 - Append every shell command to {BUILD_RUN_FOLDER}/commands.log per §13 JSONL schema
@@ -86,27 +86,27 @@ B0   BUILD SCOPE LOCK
 
 B1   PER-FEATURE EVIDENCE PACKAGE PRODUCTION
      - For each FEATURE_ID in BUILD_SCOPE without an approved evidence package:
-       Run evidence-contract/feature-automation-safe.md sequence through G4.6 candidate (fresh {RUN_ID}; rerun_of=null)
+       Run evidence-contract/feature-automation-safe.md sequence through G6 candidate (fresh {RUN_ID}; rerun_of=null)
      - For each FEATURE_ID being re-closed (already had an approved package, now changing again in this build):
        Produce a NEW {RUN_ID} for the feature; set manifest rerun_of=null if implementation changed, OR rerun_of={RUN_ID_PRIOR} if this run only regenerates evidence with empty changed_paths[] (per §11)
      - For each FEATURE_ID with an existing approved package being re-validated without changes:
        Confirm latest-run.json resolves and manifest status="approved"; do NOT create a new run folder
 
-B2   PER-FEATURE G4.6 CANDIDATE VALIDATION
-     - For each FEATURE_ID in BUILD_SCOPE: `validate-feature-evidence.py --feature {FEATURE_ID} --run-id {RUN_ID} --stage G4.6` exit 0
+B2   PER-FEATURE G6 CANDIDATE VALIDATION
+     - For each FEATURE_ID in BUILD_SCOPE: `validate-feature-evidence.py --feature {FEATURE_ID} --run-id {RUN_ID} --stage G6` exit 0
      - All in-progress runs must pass candidate validation before tracker sync
 
 B3   TRACKER, STORY-INDEX, KG, TEMPLATE VALIDATION (lifecycle validators)
      - `python3 agents/product-manager/scripts/validate-trackers.py` exit 0
-       (validate-trackers.py iterates BUILD_SCOPE; internally calls validate-feature-evidence.py --stage G4.6 per §22)
+       (validate-trackers.py iterates BUILD_SCOPE; internally calls validate-feature-evidence.py --stage G6 per §22)
      - `python3 agents/product-manager/scripts/generate-story-index.py {PRODUCT_ROOT}/planning-mds/features/`
      - `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift` exit 0
      - `python3 agents/scripts/validate_templates.py` exit 0
      - Append every command + exit code to {BUILD_RUN_FOLDER}/lifecycle-gates.log
 
-B4   PER-FEATURE G4.7 PM CLOSEOUT (PM role switch mandatory)
+B4   PER-FEATURE G8 PM CLOSEOUT (PM role switch mandatory)
      - For each FEATURE_ID in BUILD_SCOPE being closed in this build:
-       Execute the G4.7 PM CLOSEOUT CHECKLIST from evidence-contract/feature-automation-safe.md:
+       Execute the G8 PM CLOSEOUT CHECKLIST from evidence-contract/feature-automation-safe.md:
          - Write {RUN_FOLDER}/pm-closeout.md
          - Finalize evidence-manifest.json: status="approved", feature_state, feature_path_at_closeout
          - Run `python3 agents/product-manager/scripts/patch-prior-manifest.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --new-run-id {RUN_ID}`; it is idempotent and patches all prior approved sibling manifests to status="superseded"
@@ -127,7 +127,7 @@ B5   BUILD CLOSEOUT
        `for F in BUILD_SCOPE: validate-feature-evidence.py --feature $F --stage closeout` (each exit 0)
 
 STOP CONDITIONS:
-- Any feature in BUILD_SCOPE fails G4.6 candidate validation and the cause is not addressable in this build
+- Any feature in BUILD_SCOPE fails G6 candidate validation and the cause is not addressable in this build
 - Tracker validation fails and cannot be auto-repaired
 - A feature's prior approved manifest cannot be patched to superseded (e.g., file write fails or schema rejects)
 - Two approved manifests detected for the same feature post-B4 (rule two_approved_runs_without_supersession_fails)
@@ -150,5 +150,5 @@ NON-FEATURE BUILD RUNS:
 CONFLICT RESOLUTION:
 - feature evidence package present but STATUS.md missing current signoff rows → halt; feature is not closeout-ready
 - REGISTRY.md says Archived but feature evidence package missing or non-approved → halt; do not retroactively backfill (per §4 non-goal); fix REGISTRY.md instead
-- Per-feature manifest disagrees with STATUS.md current verdicts → fix the feature (run its G4.5 again) before continuing the build
+- Per-feature manifest disagrees with STATUS.md current verdicts → fix the feature (run its G5 again) before continuing the build
 - Build re-closing a feature that already has an approved package → produce a NEW {RUN_ID}, set RERUN_OF appropriately, and run patch-prior-manifest.py before writing the new latest-run.json at B4

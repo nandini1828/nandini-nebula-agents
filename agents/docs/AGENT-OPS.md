@@ -79,7 +79,7 @@ PRDs, ADRs, `STATUS.md`, trackers) remain authoritative on conflict.
    validator cross-checks the manifest against the filesystem, the reports,
    and `STATUS.md` — prose alone never satisfies a gate.
 2. **Gates write evidence; closeout publishes it.** Artifacts are created
-   and updated at the gate that owns them (G0→G4.7), not at the action
+   and updated at the gate that owns them (G0→G8), not at the action
    level. The closeout step is what flips a run to `approved` and writes
    the `latest-run.json` pointer.
 3. **`STATUS.md` signoff is append-only and authoritative.** The current
@@ -95,7 +95,7 @@ view: each gate adds or finalizes specific artifacts; the two logs are
 appended at every gate.
 
 ```
- G0 ───────▶ G1 ──────▶ G2 ──────────▶ G3 ──────────▶ G4.5 ─────────▶ G4.6 ─────────▶ G4.7 / closeout
+ G0 ───────▶ G1 ──────▶ G2 ──────────▶ G3 ──────────▶ G5 ─────────▶ G6 ─────────▶ G8 / closeout
  │           │          │              │              │               │               │
  manifest    g1-runtime g2-self-review code-review    STATUS.md        feature-action  pm-closeout.md
  (draft)     -preflight test-plan      -report        signoff rows     -execution.md   manifest→approved
@@ -110,11 +110,11 @@ appended at every gate.
  gate-
  decisions
  ▲ Owners:  Architect(G0) · DevOps(G1, deployability) · QE(test*, coverage) ·
-            Code Reviewer(G3) · Security(G3 if required) · PM(G4.5 signoff, G4.7 closeout) ·
+            Code Reviewer(G3) · Security(G3 if required) · PM(G5 signoff, G8 closeout) ·
             Feature orchestrator(execution, self-review)
 ```
 
-Supersession order at closeout is **mandatory** (G4.7): run
+Supersession order at closeout is **mandatory** (G8): run
 `patch-prior-manifest.py` first (prior approved manifests → `superseded`),
 *then* write `latest-run.json`. Patching first means a partial failure
 leaves the recoverable "no approved pointer" state, never the
@@ -161,18 +161,18 @@ punctuation must match.
 
 | Artifact | Owner | Gate | Required when |
 |----------|-------|------|---------------|
-| `evidence-manifest.json` | Orchestrator / PM | G0 / G4.6 / G4.7 | every feature run |
-| `latest-run.json` | PM | G4.7 | approved completed terminal feature |
-| `feature-action-execution.md` | Orchestrator | G4.6 | every feature run |
+| `evidence-manifest.json` | Orchestrator / PM | G0 / G6 / G8 | every feature run |
+| `latest-run.json` | PM | G8 | approved completed terminal feature |
+| `feature-action-execution.md` | Orchestrator | G6 | every feature run |
 | `g0-assembly-plan-validation.md` | Architect | G0 | every feature run |
 | `g1-runtime-preflight.md` | DevOps / orchestrator | G1 | `runtime_bearing = true` |
 | `g2-self-review.md` | Orchestrator | G2 | every feature run |
-| `test-plan.md`, `test-execution-report.md`, `coverage-report.md` | QE | G2/G4.5 | every completed terminal feature |
-| `deployability-check.md` | DevOps / orchestrator | G2/G4.5 | every completed terminal feature |
-| `code-review-report.md` | Code Reviewer | G3/G4.5 | every completed terminal feature |
-| `security-review-report.md` | Security | G3/G4.5 | Security required or `security_sensitive_scope = true` |
-| `signoff-ledger.md` | PM | G4.5/G4.6 | every completed terminal feature |
-| `pm-closeout.md` | PM | G4.7 | every completed terminal feature |
+| `test-plan.md`, `test-execution-report.md`, `coverage-report.md` | QE | G2/G5 | every completed terminal feature |
+| `deployability-check.md` | DevOps / orchestrator | G2/G5 | every completed terminal feature |
+| `code-review-report.md` | Code Reviewer | G3/G5 | every completed terminal feature |
+| `security-review-report.md` | Security | G3/G5 | Security required or `security_sensitive_scope = true` |
+| `signoff-ledger.md` | PM | G5/G6 | every completed terminal feature |
+| `pm-closeout.md` | PM | G8 | every completed terminal feature |
 | `artifacts/{coverage,diffs,test-results,security,screenshots}/` | QE / FE / orchestrator | varies | when that artifact class exists |
 
 `coverage-report.md` must exist even when coverage is waived. The `diffs/`
@@ -325,15 +325,15 @@ python3 agents/product-manager/scripts/validate-feature-evidence.py \
 | `G1` | `g1-runtime-preflight.md` when `runtime_bearing` |
 | `G2` | `g2-self-review.md`, `test-plan.md`, `test-execution-report.md`, `coverage-report.md`, `deployability-check.md` |
 | `G3` | `code-review-report.md`, `security-review-report.md` (when required) |
-| `G4.5` | current `STATUS.md` story signoff + `signoff-ledger.md` |
-| `G4.6` | `feature-action-execution.md` + candidate manifest |
-| `G4.7` / `closeout` | `pm-closeout.md`, finalized `approved` manifest, `latest-run.json`, tracker/story-index/KG/template results logged |
+| `G5` | current `STATUS.md` story signoff + `signoff-ledger.md` |
+| `G6` | `feature-action-execution.md` + candidate manifest |
+| `G8` / `closeout` | `pm-closeout.md`, finalized `approved` manifest, `latest-run.json`, tracker/story-index/KG/template results logged |
 
-Run selection: `--run-id` is required for `G0`–`G4.5`; `G4.6` accepts
+Run selection: `--run-id` is required for `G0`–`G5`; `G6` accepts
 either an explicit `--run-id` (candidate) or `latest-run.json` (approved);
-`G4.7`/`closeout` require `latest-run.json`. To avoid circular deps,
+`G8`/`closeout` require `latest-run.json`. To avoid circular deps,
 `validate-trackers.py` may only call feature-evidence validation at
-`--stage G4.6`. `--json` (stdout) or `--json-out PATH` (file) produce
+`--stage G6`. `--json` (stdout) or `--json-out PATH` (file) produce
 machine-readable output; combining them errors.
 
 ## Eligibility: Who Is Governed
@@ -397,7 +397,7 @@ the `latest-run.json` schema above, minus `feature_id`; UX audits match
 
 | Symptom | Cause | Response |
 |---------|-------|----------|
-| `missing_manifest_fails` / `missing_latest_run_fails` | required index absent | create from template; manifest at G0, latest-run at G4.7 |
+| `missing_manifest_fails` / `missing_latest_run_fails` | required index absent | create from template; manifest at G0, latest-run at G8 |
 | `commands_log_malformed_json_fails` | a log line isn't valid JSON | fix the offending line; logger should append objects only |
 | `commands_log_secret_pattern_fails` | unredacted secret in `command`/`artifacts` | redact and record the class in `redactions` |
 | `scope_boolean_false_with_changed_paths_fails` | boolean contradicts changed paths | set the boolean `true` (and add the forced evidence) or correct `changed_paths` |

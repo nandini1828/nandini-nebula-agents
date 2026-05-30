@@ -1,6 +1,6 @@
 # Signoff Ledger — F####-{slug} run {run-id}
 
-> Required at G4.5 per §10. Strictly consistent with `STATUS.md` current signoff state (latest row per `(story, role)`). PM-owned.
+> Required at G5 per §10. Strictly consistent with `STATUS.md` current signoff state (latest row per `(story, role)`). PM-owned.
 
 ## Required Role Matrix
 

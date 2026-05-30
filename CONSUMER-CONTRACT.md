@@ -246,6 +246,6 @@ Feature completion runs (`agents/actions/feature.md` and `agents/actions/build.m
 ### Validators
 
 - `agents/product-manager/scripts/validate-feature-evidence.py` — feature evidence package consistency (§22).
-- `agents/product-manager/scripts/validate-trackers.py` — tracker/registry consistency, calls feature-evidence at `--stage G4.6` after tracker validation (§22 integration).
+- `agents/product-manager/scripts/validate-trackers.py` — tracker/registry consistency, calls feature-evidence at `--stage G6` after tracker validation (§22 integration).
 - `agents/product-manager/scripts/patch-prior-manifest.py` — closeout supersession helper called before writing `latest-run.json` (§17 step 4, §24).
 - `agents/scripts/validate_templates.py` — template/action alignment, including the §24 `tpl_*` rules.

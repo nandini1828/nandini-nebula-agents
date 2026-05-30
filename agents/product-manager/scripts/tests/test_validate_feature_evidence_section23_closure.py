@@ -260,11 +260,11 @@ def test_frontend_global_substituted_for_feature_report_fails(tmp_path: Path) ->
 
 
 # --------------------------------------------------------------------------- #
-# Tracker-results-at-G4.7 rule
+# Tracker-results-at-G8 rule
 # --------------------------------------------------------------------------- #
 
 
-def test_stage_g4_7_requires_tracker_results_fails(tmp_path: Path) -> None:
+def test_stage_g8_requires_tracker_results_fails(tmp_path: Path) -> None:
     product = tmp_path / "product"
     write_registry(product, archived="| F0001 | New Feature | 2026-05-19 |  | `archive/F0001-new/` |")
     run_folder = write_manifest_run(
@@ -275,7 +275,7 @@ def test_stage_g4_7_requires_tracker_results_fails(tmp_path: Path) -> None:
     (run_folder / "lifecycle-gates.log").write_text("# Lifecycle Gate Run\n\n## Command\n\n## Stage\n\n## Exit Code\n\n## Result\n\n## Output References\n\n## Skipped Gates\n", encoding="utf-8")
     result = run_validator(product, "--feature", "F0001", "--stage", "closeout", "--json")
     rules = {entry["rule_id"] for entry in json_result(result)["errors"]}
-    assert "stage_g4_7_requires_tracker_results_fails" in rules
+    assert "stage_g8_requires_tracker_results_fails" in rules
 
 
 # --------------------------------------------------------------------------- #

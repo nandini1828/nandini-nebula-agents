@@ -5,8 +5,8 @@ REQUIRED INPUTS (you must set):
 
 OPTIONAL INPUTS (defaults apply when omitted):
 - `FEATURE_ID={F####}` — narrows implementation validation to a single feature
-- `STAGE={G0|G1|G2|G3|G4.5|G4.6|G4.7|closeout}` — default: `closeout`; only meaningful when `FEATURE_ID` is set
-- `RUN_ID={parent feature run ID}` — required when `STAGE` is `G0..G4.5`
+- `STAGE={G0|G1|G2|G3|G5|G6|G8|closeout}` — default: `closeout`; only meaningful when `FEATURE_ID` is set
+- `RUN_ID={parent feature run ID}` — required when `STAGE` is `G0..G5`
 - `EFFECTIVE_DATE={YYYY-MM-DD}` — default: `2026-05-19` (framework default); earlier values rejected (`effective_date_override_earlier_than_default_fails`)
 - `PRODUCT_ROOT=` — default: sister-repo resolved per `agents/docs/AGENT-USE.md` → Session Setup; override only for non-standard layouts
 
@@ -22,7 +22,7 @@ Run `agents/actions/validate.md` with the inputs above.
 
 Load context in this order: `agents/ROUTER.md` → `agents/agent-map.yaml` → `agents/docs/AGENT-USE.md` → `agents/actions/validate.md` → `agents/product-manager/SKILL.md` (requirements validation mode) → `agents/architect/SKILL.md` (architecture validation mode). When implementation is in scope, also load `agents/product-manager/scripts/README.md` for validator commands and exit codes.
 
-Don't generate `{VALIDATE_RUN_ID}` with `uuid4`. Don't write into any feature evidence package (validate is read-only with respect to feature packages). Don't treat validator script output as a substitute for the PM/Architect agent-level validation work. Don't pass `--evidence-effective-date` earlier than the framework default. Don't call `--stage G4.7` or `--stage closeout` when invoked transitively from `validate-trackers.py` context (§17 step 2 forbids this). Don't produce summaries that downgrade errors to warnings. Don't skip the SELF-REVIEW gate per agent. Don't bypass the APPROVAL gate before reporting results upstream.
+Don't generate `{VALIDATE_RUN_ID}` with `uuid4`. Don't write into any feature evidence package (validate is read-only with respect to feature packages). Don't treat validator script output as a substitute for the PM/Architect agent-level validation work. Don't pass `--evidence-effective-date` earlier than the framework default. Don't call `--stage G8` or `--stage closeout` when invoked transitively from `validate-trackers.py` context (§17 step 2 forbids this). Don't produce summaries that downgrade errors to warnings. Don't skip the SELF-REVIEW gate per agent. Don't bypass the APPROVAL gate before reporting results upstream.
 
 Keep ownership strict:
 - Product Manager (requirements validation) owns `{VALIDATE_RUN_FOLDER}/pm-validation-report.md`
@@ -51,5 +51,5 @@ Close the run when all scope-applicable commands exit 0 (or exit 2 has been esca
 Resolve conflicts like this:
 - PM findings disagree with Architect findings on the same artifact → escalate to user at V3; do not silently reconcile
 - `validate-trackers.py` reports a rule that `validate-feature-evidence.py` owns → defer to the feature evidence validator (single source of truth per §22)
-- `validate-feature-evidence.py` reports an error you believe is a validator defect → do NOT bypass via `--evidence-effective-date`; route to the Phase 5 validator-defect fallback (record `waivers.validator_defect` in the affected feature manifest with follow-up; for in-progress features, log the defect as a mid-stage follow-up and create the waiver entry only when that feature reaches G4.7)
+- `validate-feature-evidence.py` reports an error you believe is a validator defect → do NOT bypass via `--evidence-effective-date`; route to the Phase 5 validator-defect fallback (record `waivers.validator_defect` in the affected feature manifest with follow-up; for in-progress features, log the defect as a mid-stage follow-up and create the waiver entry only when that feature reaches G8)
 - registry-wide scan reports a pre-contract archived feature requiring evidence → check the `Evidence Reentry Date` on that archived row; absence means no reentry is claimed, so the requirement is the bug

@@ -63,9 +63,9 @@ When this action drives feature closeout, run `validate-feature-evidence.py` at 
 
 | Gate | Command |
 |------|---------|
-| G0–G4.5 | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage <G0\|G1\|G2\|G3\|G4.5>` |
-| G4.6 candidate | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G4.6` (before tracker sync; before `pm-closeout.md` is finalized) |
-| Closeout (G4.7) | After §17 step 4 supersession-and-publish completes: `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --stage closeout` |
+| G0–G5 | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage <G0\|G1\|G2\|G3\|G5>` |
+| G6 candidate | `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G6` (before tracker sync; before `pm-closeout.md` is finalized) |
+| Closeout (G8) | After §17 step 4 supersession-and-publish completes: `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --stage closeout` |
 
 Stage-validation failures must be resolved before advancing the gate.
 
@@ -1010,7 +1010,7 @@ Before Build Complete, verify required role signoffs across delivered features:
 
 ### Step 6.95: Build Tracker Sync (Mandatory)
 
-> Build-internal step name. Not to be confused with the feature-evidence gates from §17 — under v2 the feature `G4.6` carries candidate evidence + tracker validation and `G4.7` is PM closeout. This step coordinates tracker validation across the whole build.
+> Build-internal step name. Not to be confused with the feature-evidence gates from §17 — under v2 the feature `G6` carries candidate evidence + tracker validation and `G8` is PM closeout. This step coordinates tracker validation across the whole build.
 
 **Execution Instructions:**
 

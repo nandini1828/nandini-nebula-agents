@@ -38,14 +38,14 @@ DEFAULT_EFFECTIVE_DATE = date(2026, 5, 19)
 SECURITY_SCANS_EFFECTIVE_DATE = date(2026, 5, 25)
 REQUIRED_SECURITY_SCAN_CLASSES = ("dependency", "secrets", "sast", "dast")
 # Runs whose contract_effective_date is on/after this date must carry the
-# architect's G4.65 knowledge-graph reconciliation: `kg-reconciliation.md` plus
+# architect's G7 knowledge-graph reconciliation: `kg-reconciliation.md` plus
 # `gate_results.kg_reconciliation`. Earlier runs are exempt so pre-existing
 # evidence packages (e.g. F0036, effective 2026-05-25) stay valid.
 KG_RECONCILIATION_EFFECTIVE_DATE = date(2026, 6, 1)
 RUN_ID_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-[a-z0-9]{8}$")
 FEATURE_ID_RE = re.compile(r"^F\d{4}$")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-STAGES = {"G0", "G1", "G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}
+STAGES = {"G0", "G1", "G2", "G3", "G5", "G6", "G8", "closeout"}
 TERMINAL_ACTIVE_STATES = {"done", "complete", "completed", "archived"}
 MANIFEST_STATUSES = {"draft", "in-progress", "approved", "superseded"}
 SUPPORTED_MANIFEST_SCHEMA_VERSIONS = {1}
@@ -103,10 +103,10 @@ STAGE_REQUIRED_GATES: dict[str, list[str]] = {
     "G1": ["G0", "G1"],
     "G2": ["G0", "G1", "G2"],
     "G3": ["G0", "G1", "G2", "G3"],
-    "G4.5": ["G0", "G1", "G2", "G3", "G4.5"],
-    "G4.6": ["G0", "G1", "G2", "G3", "G4.5", "G4.6"],
-    "G4.7": ["G0", "G1", "G2", "G3", "G4.5", "G4.6", "G4.7"],
-    "closeout": ["G0", "G1", "G2", "G3", "G4.5", "G4.6", "G4.7"],
+    "G5": ["G0", "G1", "G2", "G3", "G5"],
+    "G6": ["G0", "G1", "G2", "G3", "G5", "G6"],
+    "G8": ["G0", "G1", "G2", "G3", "G5", "G6", "G8"],
+    "closeout": ["G0", "G1", "G2", "G3", "G5", "G6", "G8"],
 }
 
 # §10 / §17 — which run-folder files must exist for a given stage.
@@ -142,10 +142,10 @@ def stage_required_files(stage: str, runtime_bearing: bool, security_required: b
     if stage == "G3":
         return base
     base.append("signoff-ledger.md")
-    if stage == "G4.5":
+    if stage == "G5":
         return base
     base.append("feature-action-execution.md")
-    if stage == "G4.6":
+    if stage == "G6":
         return base
     base.append("pm-closeout.md")
     return base
@@ -188,43 +188,43 @@ ROLE_PASSING_REVIEWS = PASSING_APPROVED_RESULTS | PASSING_PASS_RESULTS
 # §11 gate_results requirement matrix.
 GATE_SPEC: dict[str, dict[str, Any]] = {
     "assembly_plan_validation": {
-        "stages": {"G0", "G1", "G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G0", "G1", "G2", "G3", "G5", "G6", "G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "g0-assembly-plan-validation.md",
         "condition": "always",
     },
     "runtime_preflight": {
-        "stages": {"G1", "G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G1", "G2", "G3", "G5", "G6", "G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "g1-runtime-preflight.md",
         "condition": "runtime_bearing",
     },
     "self_review": {
-        "stages": {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G2", "G3", "G5", "G6", "G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "g2-self-review.md",
         "condition": "always",
     },
     "deployability": {
-        "stages": {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G2", "G3", "G5", "G6", "G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "deployability-check.md",
         "condition": "always",
     },
     "signoff": {
-        "stages": {"G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G5", "G6", "G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "signoff-ledger.md",
         "condition": "always",
     },
     "pm_closeout": {
-        "stages": {"G4.7", "closeout"},
+        "stages": {"G8", "closeout"},
         "passing": PASSING_APPROVED_RESULTS,
         "artifact": "pm-closeout.md",
         "condition": "always",
     },
     "tracker_sync": {
-        "stages": {"G4.7", "closeout"},
+        "stages": {"G8", "closeout"},
         "passing": PASSING_PASS_RESULTS,
         "artifact": "lifecycle-gates.log",
         "condition": "always",
@@ -238,35 +238,35 @@ ROLE_SPEC: dict[str, dict[str, Any]] = {
         "verdict_artifact": "test-execution-report.md",
         "passing": PASSING_PASS_RESULTS,
         "condition": "always",
-        "stages": {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G2", "G3", "G5", "G6", "G8", "closeout"},
     },
     "Code Reviewer": {
         "required_artifacts": ["code-review-report.md"],
         "verdict_artifact": "code-review-report.md",
         "passing": ROLE_PASSING_REVIEWS,
         "condition": "always",
-        "stages": {"G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G3", "G5", "G6", "G8", "closeout"},
     },
     "Security Reviewer": {
         "required_artifacts": ["security-review-report.md"],
         "verdict_artifact": "security-review-report.md",
         "passing": PASSING_PASS_RESULTS,
         "condition": "security",
-        "stages": {"G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G3", "G5", "G6", "G8", "closeout"},
     },
     "DevOps": {
         "required_artifacts": ["deployability-check.md"],
         "verdict_artifact": "deployability-check.md",
         "passing": PASSING_PASS_RESULTS,
         "condition": "devops",
-        "stages": {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G2", "G3", "G5", "G6", "G8", "closeout"},
     },
     "Architect": {
         "required_artifacts": ["g0-assembly-plan-validation.md"],
         "verdict_artifact": "g0-assembly-plan-validation.md",
         "passing": PASSING_PASS_RESULTS,
         "condition": "status_required",
-        "stages": {"G0", "G1", "G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"},
+        "stages": {"G0", "G1", "G2", "G3", "G5", "G6", "G8", "closeout"},
     },
 }
 
@@ -1056,9 +1056,9 @@ def validate_latest_run(
 def resolve_run(row: RegistryRow, stage: str, run_id: str | None, result: Result) -> tuple[str | None, Path | None, bool]:
     root = evidence_root_for(result.product_root, row)
     latest_path = root / "latest-run.json"
-    if stage in {"G0", "G1", "G2", "G3", "G4.5"}:
+    if stage in {"G0", "G1", "G2", "G3", "G5"}:
         if not run_id:
-            result.add_error("stage_without_run_id_before_g4_6_fails", f"{stage} validation requires --run-id", feature=row.feature_id)
+            result.add_error("stage_without_run_id_before_g6_fails", f"{stage} validation requires --run-id", feature=row.feature_id)
             return None, None, False
         run_folder = root / run_id
         if not run_folder.exists():
@@ -1066,10 +1066,10 @@ def resolve_run(row: RegistryRow, stage: str, run_id: str | None, result: Result
             return run_id, None, False
         return run_id, run_folder / "evidence-manifest.json", False
 
-    if stage == "G4.6":
+    if stage == "G6":
         if run_id:
             if latest_path.exists():
-                resolution = validate_latest_run(row, result, latest_path, run_id, "stage_g4_6_run_id_mismatch_with_latest_run_fails")
+                resolution = validate_latest_run(row, result, latest_path, run_id, "stage_g6_run_id_mismatch_with_latest_run_fails")
                 if resolution.mismatch or resolution.unloadable:
                     return run_id, None, False
             run_folder = root / run_id
@@ -1078,7 +1078,7 @@ def resolve_run(row: RegistryRow, stage: str, run_id: str | None, result: Result
                 return run_id, None, False
             return run_id, run_folder / "evidence-manifest.json", False
         if not latest_path.exists():
-            result.add_error("stage_g4_6_without_run_id_or_latest_run_fails", "G4.6 validation requires --run-id or latest-run.json", feature=row.feature_id, path=str(root))
+            result.add_error("stage_g6_without_run_id_or_latest_run_fails", "G6 validation requires --run-id or latest-run.json", feature=row.feature_id, path=str(root))
             return None, None, False
         resolution = validate_latest_run(row, result, latest_path, None, None)
         return resolution.run_id, resolution.manifest_path, True
@@ -1091,7 +1091,7 @@ def resolve_run(row: RegistryRow, stage: str, run_id: str | None, result: Result
         else:
             result.add_error("missing_latest_run_fails", "latest-run.json is required for closeout validation", feature=row.feature_id, path=str(latest_path))
         return None, None, True
-    resolution = validate_latest_run(row, result, latest_path, run_id, "stage_g4_7_run_id_mismatch_fails")
+    resolution = validate_latest_run(row, result, latest_path, run_id, "stage_g8_run_id_mismatch_fails")
     return resolution.run_id, resolution.manifest_path, True
 
 
@@ -1256,12 +1256,12 @@ def validate_manifest_deep(
                         **common,
                     )
 
-    # G4.65 architect knowledge-graph reconciliation (date-gated).
-    # The architect binds the as-built source into the semantic graph at G4.65;
+    # G7 architect knowledge-graph reconciliation (date-gated).
+    # The architect binds the as-built source into the semantic graph at G7;
     # closeout requires the gate result to be present and passing. Gated on the
     # run's own contract_effective_date so earlier packages stay valid.
     if (
-        stage in {"G4.7", "closeout"}
+        stage in {"G8", "closeout"}
         and manifest_effective is not None
         and manifest_effective >= KG_RECONCILIATION_EFFECTIVE_DATE
     ):
@@ -1270,7 +1270,7 @@ def validate_manifest_deep(
         if not isinstance(kg_gate, dict):
             result.add_error(
                 "kg_reconciliation_gate_missing_fails",
-                "Manifest gate_results.kg_reconciliation is missing (G4.65 architect KG reconciliation is required at closeout)",
+                "Manifest gate_results.kg_reconciliation is missing (G7 architect KG reconciliation is required at closeout)",
                 **common,
             )
         else:
@@ -1285,7 +1285,7 @@ def validate_manifest_deep(
     # status / feature_state at closeout
     status = manifest.get("status")
     feature_state = (manifest.get("feature_state") or "").strip().casefold()
-    if stage in {"G4.7", "closeout"} and status == "approved":
+    if stage in {"G8", "closeout"} and status == "approved":
         if feature_state in {"draft", "in progress"}:
             result.add_error(
                 "manifest_final_approved_with_non_terminal_state_fails",
@@ -1356,11 +1356,11 @@ def validate_required_artifacts(
     feature_id = row.feature_id
     run_id = manifest.get("run_id") if isinstance(manifest.get("run_id"), str) else None
 
-    # G4.65 architect KG reconciliation artifact (date-gated; see
+    # G7 architect KG reconciliation artifact (date-gated; see
     # KG_RECONCILIATION_EFFECTIVE_DATE). Earlier packages stay exempt.
     manifest_effective = parse_iso_date(str(manifest.get("contract_effective_date", "")))
     if (
-        stage in {"G4.7", "closeout"}
+        stage in {"G8", "closeout"}
         and manifest_effective is not None
         and manifest_effective >= KG_RECONCILIATION_EFFECTIVE_DATE
     ):
@@ -1472,12 +1472,12 @@ def validate_gate_decisions(run_folder: Path, stage: str, row: RegistryRow, resu
             feature=row.feature_id,
             path=str(path),
         )
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"} and "G4.5" not in present:
-        result.add_error("gate_decisions_missing_g4_5_fails", "gate-decisions.md missing G4.5 row", feature=row.feature_id, path=str(path))
-    if stage in {"G4.6", "G4.7", "closeout"} and "G4.6" not in present:
-        result.add_error("gate_decisions_missing_g4_6_fails", "gate-decisions.md missing G4.6 row", feature=row.feature_id, path=str(path))
-    if stage in {"G4.7", "closeout"} and "G4.7" not in present:
-        result.add_error("gate_decisions_missing_g4_7_fails", "gate-decisions.md missing G4.7 row", feature=row.feature_id, path=str(path))
+    if stage in {"G5", "G6", "G8", "closeout"} and "G5" not in present:
+        result.add_error("gate_decisions_missing_g5_fails", "gate-decisions.md missing G5 row", feature=row.feature_id, path=str(path))
+    if stage in {"G6", "G8", "closeout"} and "G6" not in present:
+        result.add_error("gate_decisions_missing_g6_fails", "gate-decisions.md missing G6 row", feature=row.feature_id, path=str(path))
+    if stage in {"G8", "closeout"} and "G8" not in present:
+        result.add_error("gate_decisions_missing_g8_fails", "gate-decisions.md missing G8 row", feature=row.feature_id, path=str(path))
 
 
 def validate_lifecycle_gates(run_folder: Path, row: RegistryRow, result: Result) -> None:
@@ -1700,7 +1700,7 @@ def validate_recommendations_in_role_reports(
                 )
                 continue
 
-            if stage not in {"G4.7", "closeout"}:
+            if stage not in {"G8", "closeout"}:
                 # Recommendations only require PM acceptance at closeout.
                 continue
 
@@ -1735,7 +1735,7 @@ def validate_coverage_waiver_acceptance(
     coverage_waiver = waivers.get("coverage")
     if not isinstance(coverage_waiver, dict):
         return
-    if stage not in {"G4.6", "G4.7", "closeout"}:
+    if stage not in {"G6", "G8", "closeout"}:
         return
     pm_closeout_path = run_folder / "pm-closeout.md"
     acceptances = parse_pm_acceptance_lines(safe_read(pm_closeout_path) or "")
@@ -1805,7 +1805,7 @@ def validate_validator_defect_waiver(
         )
         return
 
-    if stage not in {"G4.6", "G4.7", "closeout"}:
+    if stage not in {"G6", "G8", "closeout"}:
         return
 
     pm_closeout = run_folder / "pm-closeout.md"
@@ -1949,7 +1949,7 @@ def validate_status_md(row: RegistryRow, manifest: dict[str, Any], run_folder: P
             )
 
         verdict = strip_code(entry.get("verdict", ""))
-        if "WITH RECOMMENDATIONS" in verdict.upper() and stage in {"G4.7", "closeout"}:
+        if "WITH RECOMMENDATIONS" in verdict.upper() and stage in {"G8", "closeout"}:
             # Look for a PM acceptance whose identifier matches this story/role.
             matched = False
             for needle in (f"{story}-{role}", story, role):
@@ -2010,7 +2010,7 @@ def validate_status_md(row: RegistryRow, manifest: dict[str, Any], run_folder: P
                             )
 
     # Baseline + forced roles
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage in {"G5", "G6", "G8", "closeout"}:
         all_required = {"Quality Engineer", "Code Reviewer"}
         if security_required:
             all_required.add("Security Reviewer")
@@ -2486,8 +2486,8 @@ def validate_cross_artifact_identity(
                         **common,
                     )
 
-    # closeout_path_mismatch_fails — at G4.7/closeout the registry folder must match manifest
-    if stage in {"G4.7", "closeout"} and manifest.get("status") == "approved":
+    # closeout_path_mismatch_fails — at G8/closeout the registry folder must match manifest
+    if stage in {"G8", "closeout"} and manifest.get("status") == "approved":
         registry_folder = row.folder.rstrip("/")
         closeout_path = manifest.get("feature_path_at_closeout") or ""
         if registry_folder and closeout_path:
@@ -2508,7 +2508,7 @@ def validate_signoff_ledger_consistency(
     result: Result,
 ) -> None:
     """§21 — signoff-ledger.md must agree with current STATUS.md rows."""
-    if stage not in {"G4.5", "G4.6", "G4.7", "closeout"}:
+    if stage not in {"G5", "G6", "G8", "closeout"}:
         return
     ledger_path = run_folder / "signoff-ledger.md"
     ledger_content = safe_read(ledger_path)
@@ -2609,7 +2609,7 @@ def validate_cross_artifact_recommendations(
     """§21 — every PM Acceptance Line identifier that is not a recognized waiver
     key, coverage, validator-defect rule ID, or §15 keyword should map to a
     recommendation appearing somewhere in the role reports."""
-    if stage not in {"G4.7", "closeout"}:
+    if stage not in {"G8", "closeout"}:
         return
     pm_path = run_folder / "pm-closeout.md"
     pm_content = safe_read(pm_path)
@@ -2887,7 +2887,7 @@ def validate_phase2b_additional_rules(
             )
 
     # frontend_true_without_feature_test_notes_fails / frontend_global_substituted_for_feature_report_fails.
-    if manifest.get("frontend_in_scope") is True and stage in {"G2", "G3", "G4.5", "G4.6", "G4.7", "closeout"}:
+    if manifest.get("frontend_in_scope") is True and stage in {"G2", "G3", "G5", "G6", "G8", "closeout"}:
         te_path = run_folder / "test-execution-report.md"
         te_content = safe_read(te_path) or ""
         cleaned = te_content.strip()
@@ -2907,15 +2907,15 @@ def validate_phase2b_additional_rules(
                     **common,
                 )
 
-    # stage_g4_7_requires_tracker_results_fails — at G4.7/closeout the
+    # stage_g8_requires_tracker_results_fails — at G8/closeout the
     # lifecycle-gates.log must reference the tracker-sync invocation.
-    if stage in {"G4.7", "closeout"}:
+    if stage in {"G8", "closeout"}:
         log_path = run_folder / "lifecycle-gates.log"
         log_content = safe_read(log_path) or ""
         if not re.search(r"validate-trackers|tracker.?sync", log_content, re.IGNORECASE):
             result.add_error(
-                "stage_g4_7_requires_tracker_results_fails",
-                "G4.7/closeout requires tracker-sync results to appear in lifecycle-gates.log before final validation",
+                "stage_g8_requires_tracker_results_fails",
+                "G8/closeout requires tracker-sync results to appear in lifecycle-gates.log before final validation",
                 **common,
             )
 
@@ -2957,7 +2957,7 @@ def validate_phase2b_additional_rules(
     # changed_paths_mismatch_fails (§21) — role reports may mention paths that
     # the manifest's changed_paths does not cover. Limited to the obvious
     # surface (code-review-report.md) to keep false positives down.
-    if stage in {"G4.5", "G4.6", "G4.7", "closeout"} and manifest.get("rerun_of") is None:
+    if stage in {"G5", "G6", "G8", "closeout"} and manifest.get("rerun_of") is None:
         changed_paths_list = manifest.get("changed_paths") or []
         manifest_paths = [str(p) for p in changed_paths_list if isinstance(p, str)]
         if manifest_paths:
@@ -2973,7 +2973,7 @@ def validate_phase2b_additional_rules(
 
     # deferred_blocker_passes_fails (§18) — a critical recommendation deferred
     # without explicit PM mitigation language with a passing closeout.
-    if stage in {"G4.7", "closeout"}:
+    if stage in {"G8", "closeout"}:
         pm_content = safe_read(run_folder / "pm-closeout.md") or ""
         for filename in RECOMMENDATION_BEARING_REPORTS:
             content = safe_read(run_folder / filename) or ""
