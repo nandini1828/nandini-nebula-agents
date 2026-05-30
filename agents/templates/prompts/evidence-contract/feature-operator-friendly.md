@@ -73,8 +73,9 @@ Keep ownership strict:
 - `security-reviewer owns`: `security-review-report.md` when `security_sensitive_scope=true` or Security required in `STATUS.md`
 - `devops owns`: `g1-runtime-preflight.md` when `runtime_bearing=true`, `deployability-check.md`
 - feature orchestrator owns: `g2-self-review.md`, `feature-action-execution.md`, `artifact-trace.md`, `gate-decisions.md`, manifest scope booleans, `changed_paths[]`
+- implementation agents (backend, frontend, AI, QE, DevOps) edit only their own runtime layer + their feature-level role report under `{RUN_FOLDER}`; shared-semantics changes route back to architect, and other roles flag drift but do not silently redefine canonical shared semantics
 
-Follow these gates exactly. Manifest `status` transitions: `draft` at G0, `in-progress` from G1 through G4.6 candidate, `approved` only at G4.7 when `latest-run.json` is written, `superseded` later only when a newer approved run replaces this one.
+Follow these gates exactly. Manifest `status` transitions: `draft` at G0, `in-progress` from G1 through G4.65 (candidate validation + architect KG reconciliation), `approved` only at G4.7 when `latest-run.json` is written, `superseded` later only when a newer approved run replaces this one.
 
 - `G0 ARCHITECT ASSEMBLY PLAN AUTHORING + VALIDATION` — **Step 0 (author):** if `PRIMARY_SPEC` is absent, the Architect authors `{FEATURE_PATH}/feature-assembly-plan.md` from `agents/templates/feature-assembly-plan-template.md` using the feature stories, `BLUEPRINT.md`, `SOLUTION-PATTERNS.md`, and API contracts (per `feature.md` Step 0); on `drift-reconcile`/rerun, reconcile the existing plan instead of overwriting and log it via `workstate.py decision --topic plan-story-reconcile`. **Step 0.5 (validate):** check scope split, agent dependencies, integration checkpoints, and artifact ownership, and initialize the `Required Signoff Roles` matrix in `{FEATURE_PATH}/STATUS.md`. Then write `g0-assembly-plan-validation.md`; run `validate-feature-evidence.py --stage G0 --run-id {RUN_ID}` exit 0; flip manifest `status` to `in-progress` after G0 passes
 - `G1 RUNTIME PREFLIGHT` — write `g1-runtime-preflight.md` if `runtime_bearing=true`, else record the manifest omission; run `--stage G1`
@@ -83,7 +84,8 @@ Follow these gates exactly. Manifest `status` transitions: `draft` at G0, `in-pr
 - `G4 APPROVAL` — critical=0; high requires explicit mitigation token in `gate-decisions.md`
 - `G4.5 SIGNOFF` — every Required=Yes role: verdict, reviewer, ISO date, evidence path under `{RUN_FOLDER}/**`; STATUS.md story values match `F####-S####` and the feature's local story breakdown; write `signoff-ledger.md`; run `--stage G4.5`. Any `WITH RECOMMENDATIONS` verdict must satisfy all 5 §15 closeout-passing conditions in the underlying role report: each recommendation is marked non-blocking/deferred (`recommendation_ambiguous_fails`), has severity (`recommendation_missing_severity_fails`), has owner and follow-up disposition (`recommendation_missing_owner_fails`), names what PM is being asked to accept at G4.7, and contains no high/critical or blocking language with a passing verdict (`blocking_language_with_pass_fails`)
 - `G4.6 CANDIDATE EVIDENCE VALIDATION` (no PM closeout yet) — write `feature-action-execution.md`; manifest is a pre-closeout candidate (no `pm_closeout`, no `tracker_sync`, no `latest-run.json` yet); run `--stage G4.6`; then run `python3 agents/product-manager/scripts/validate-trackers.py --feature {FEATURE_ID} --run-id {RUN_ID}` (it internally calls `validate-feature-evidence.py --stage G4.6`); append every lifecycle validator command (tracker, story-index, KG, validate_templates) to `lifecycle-gates.log`
-- `G4.7 PM CLOSEOUT` — MUST switch role: read `agents/product-manager/SKILL.md` before executing (see closeout checklist below); finalize manifest, patch prior manifest, write `latest-run.json`, run `--stage closeout` exit 0
+- `G4.65 ARCHITECT KG RECONCILIATION` — MUST switch role: read `agents/architect/SKILL.md`; bind the as-built source into the SEMANTIC graph (`code-index.yaml` glob bindings + `canonical-nodes.yaml`) so the next feature's architect reads a correct graph at G0; CODE paths only (stable across the G4.7 archive move); write `kg-reconciliation.md`; symbol + drift validators exit 0 (see reconciliation checklist below)
+- `G4.7 PM CLOSEOUT` — MUST switch role: read `agents/product-manager/SKILL.md` before executing (see closeout checklist below); VERIFY (not re-author) the G4.65 graph; finalize manifest, patch prior manifest, write `latest-run.json`, run `--stage closeout` exit 0
 
 At `G4.6 CANDIDATE`, do all of this:
 - Confirm all G0–G4.5 evidence is present and verdicts are passing
@@ -93,19 +95,30 @@ At `G4.6 CANDIDATE`, do all of this:
 - `scm.diff_artifact` resolves and lists changed files (empty only when `RERUN_OF` is set)
 - Non-required role/gate artifacts that are absent appear in manifest `omissions[]` (do not double-count when `role_results.<role>.required=false`)
 
+At `G4.65 ARCHITECT KG RECONCILIATION`, do all of this:
+- `Read agents/architect/SKILL.md (explicit role switch)`
+- `Diff the as-built source against the G0 "Knowledge-Graph Binding Plan" baseline to find the binding delta`
+- `Update {PRODUCT_ROOT}/planning-mds/knowledge-graph/code-index.yaml: directory-glob bindings for every new capability/shared-semantic source surface (e.g. experience/src/features/forms/**); confirm existing-glob coverage rather than duplicating file-by-file`
+- `Update canonical-nodes.yaml for new shared semantics, or state "none introduced; reuses existing"`
+- `Do NOT run --write-coverage-report here (path-sensitive; deferred to G4.7 after the archive move)`
+- `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --regenerate-symbols --check-symbols MUST exit 0`
+- `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift MUST exit 0`
+- Write `kg-reconciliation.md` (binding delta, new/affirmed canonical nodes, green symbol+drift results)
+- Manifest stays `status=in-progress`; record `gate_results.kg_reconciliation`
+
 At `G4.7 PM CLOSEOUT`, do all of this:
 - `Read agents/product-manager/SKILL.md (explicit role switch)`
+- `VERIFY (do not re-author) the G4.65 semantic graph: kg-reconciliation.md present + symbol/drift green. A binding gap found here routes back to the Architect for a G4.65 delta pass`
 - `Update {FEATURE_PATH}/STATUS.md: final overall status, deferred follow-ups, mitigation notes, signoff provenance (append-only; no mutation)`
 - `Update {PRODUCT_ROOT}/planning-mds/features/REGISTRY.md: status/path transitions (include archive move; set Archived Date when archiving)`
 - `Update {PRODUCT_ROOT}/planning-mds/features/ROADMAP.md: Now/Next/Later/Completed placement`
 - `Update {PRODUCT_ROOT}/planning-mds/BLUEPRINT.md: feature/story status labels and links`
 - `IF overall_status in {Done|Completed}: move {FEATURE_PATH} to {ARCHIVE_FEATURE_PATH}/ and fix impacted links`
-- `Update {PRODUCT_ROOT}/planning-mds/knowledge-graph/feature-mappings.yaml: feature path, status, story status`
-- `Update {PRODUCT_ROOT}/planning-mds/knowledge-graph/code-index.yaml: bindings for every new source file introduced by this feature`
-- `Update canonical-nodes.yaml ONLY if new shared semantics introduced (route to Architect if so)`
+- `Update {PRODUCT_ROOT}/planning-mds/knowledge-graph/feature-mappings.yaml: feature path, status, story status (lifecycle-coupled, PM-owned)`
+- `Do NOT author code-index.yaml / canonical-nodes.yaml here — that was the Architect's G4.65 work; closeout only verifies it is green`
 - `Capture orphaned stories and deferred follow-ups in pm-closeout.md`
-- `IF KG changed: python3 {PRODUCT_ROOT}/scripts/kg/validate.py --write-coverage-report`
-- `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift MUST exit 0`
+- `AFTER the archive move: python3 {PRODUCT_ROOT}/scripts/kg/validate.py --write-coverage-report (path-sensitive — binds the relocated feature-doc paths; running it before the move re-stales it)`
+- `python3 {PRODUCT_ROOT}/scripts/kg/validate.py --check-drift MUST exit 0 on the post-move graph`
 - Write `pm-closeout.md` with `Final Story Status`, `Archive Decision`, `Deferred Follow-ups`, `Recommendation Acceptances`, `Tracker Updates`, `Validator Results`
 - Finalize `evidence-manifest.json`: set `status=approved`, `feature_state` in `{Done|Completed|Archived}`, `feature_path_at_closeout` resolved, all `gate_results` present
 - Run `python3 agents/product-manager/scripts/patch-prior-manifest.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --new-run-id {RUN_ID}`; it is idempotent and patches all prior approved sibling manifests to `status=superseded` (rule `two_approved_runs_without_supersession_fails`)
@@ -118,9 +131,11 @@ Don't generate `{RUN_ID}` with `uuid4` or any non-contract format. Don't write o
 
 Stop immediately if runtime preflight cannot be restored, if a critical code or security finding persists after one review cycle, if required signoff is missing reviewer/date/evidence, if a canonical node edit is attempted outside Architect role, if scope drifts outside `{FEATURE_ID}`, if `validate.py` or `validate.py --check-drift` cannot be auto-repaired, if `validate-feature-evidence.py` at any stage exits non-zero and the cause is not addressable in this run, if two approved manifests are detected for the same feature without supersession, or if `INSUFFICIENT_CONTEXT` occurs. `INSUFFICIENT_CONTEXT` means the same thing as in the plan prompt: escalate, open the raw artifacts, and do not proceed with weak matches.
 
-Close the run by executing these in order:
-- `Applicable backend/frontend/test commands for changed surfaces (inside runtime containers; evidence paths recorded in commands.log)`
-- `python3 agents/product-manager/scripts/validate-trackers.py --feature {FEATURE_ID} --run-id {RUN_ID}`
+Close the run by executing these in order (evidence paths recorded under `{PRODUCT_ROOT}/planning-mds/operations/evidence/**`):
+- `Applicable backend/frontend/test commands for changed surfaces (inside runtime containers; evidence paths recorded)`
+- `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --run-id {RUN_ID} --stage G4.6`
+- `python3 agents/product-manager/scripts/validate-trackers.py` (calls feature-evidence at --stage G4.6 per §22; pass --feature {FEATURE_ID} --run-id {RUN_ID} when scoped)
+- After §17 step 4 (`patch-prior-manifest.py` then `latest-run.json`): `python3 agents/product-manager/scripts/validate-feature-evidence.py --product-root {PRODUCT_ROOT} --feature {FEATURE_ID} --stage closeout`
 - `python3 agents/product-manager/scripts/generate-story-index.py {PRODUCT_ROOT}/planning-mds/features/` (if stories changed)
 - `IF code in bound files changed: python3 {PRODUCT_ROOT}/scripts/kg/validate.py --regenerate-symbols`
 - `IF KG changed: python3 {PRODUCT_ROOT}/scripts/kg/validate.py --write-coverage-report`

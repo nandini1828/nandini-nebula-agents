@@ -37,6 +37,11 @@ DEFAULT_EFFECTIVE_DATE = date(2026, 5, 19)
 # pre-existing/archived evidence packages stay valid.
 SECURITY_SCANS_EFFECTIVE_DATE = date(2026, 5, 25)
 REQUIRED_SECURITY_SCAN_CLASSES = ("dependency", "secrets", "sast", "dast")
+# Runs whose contract_effective_date is on/after this date must carry the
+# architect's G4.65 knowledge-graph reconciliation: `kg-reconciliation.md` plus
+# `gate_results.kg_reconciliation`. Earlier runs are exempt so pre-existing
+# evidence packages (e.g. F0036, effective 2026-05-25) stay valid.
+KG_RECONCILIATION_EFFECTIVE_DATE = date(2026, 6, 1)
 RUN_ID_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-[a-z0-9]{8}$")
 FEATURE_ID_RE = re.compile(r"^F\d{4}$")
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -83,6 +88,12 @@ REQUIRED_HEADINGS: dict[str, list[str]] = {
         "Recommendation Acceptances",
         "Tracker Updates",
         "Validator Results",
+    ],
+    "kg-reconciliation.md": [
+        "Binding Delta",
+        "Canonical Nodes",
+        "Validator Results",
+        "Handoff to Closeout",
     ],
 }
 
@@ -1245,6 +1256,32 @@ def validate_manifest_deep(
                         **common,
                     )
 
+    # G4.65 architect knowledge-graph reconciliation (date-gated).
+    # The architect binds the as-built source into the semantic graph at G4.65;
+    # closeout requires the gate result to be present and passing. Gated on the
+    # run's own contract_effective_date so earlier packages stay valid.
+    if (
+        stage in {"G4.7", "closeout"}
+        and manifest_effective is not None
+        and manifest_effective >= KG_RECONCILIATION_EFFECTIVE_DATE
+    ):
+        gate_results = manifest.get("gate_results")
+        kg_gate = gate_results.get("kg_reconciliation") if isinstance(gate_results, dict) else None
+        if not isinstance(kg_gate, dict):
+            result.add_error(
+                "kg_reconciliation_gate_missing_fails",
+                "Manifest gate_results.kg_reconciliation is missing (G4.65 architect KG reconciliation is required at closeout)",
+                **common,
+            )
+        else:
+            kg_result = str(kg_gate.get("result", "")).strip().upper()
+            if kg_result not in PASSING_PASS_RESULTS:
+                result.add_error(
+                    "kg_reconciliation_gate_not_passing_fails",
+                    f"gate_results.kg_reconciliation.result must be passing ({sorted(PASSING_PASS_RESULTS)}), got {kg_gate.get('result')!r}",
+                    **common,
+                )
+
     # status / feature_state at closeout
     status = manifest.get("status")
     feature_state = (manifest.get("feature_state") or "").strip().casefold()
@@ -1319,6 +1356,16 @@ def validate_required_artifacts(
     feature_id = row.feature_id
     run_id = manifest.get("run_id") if isinstance(manifest.get("run_id"), str) else None
 
+    # G4.65 architect KG reconciliation artifact (date-gated; see
+    # KG_RECONCILIATION_EFFECTIVE_DATE). Earlier packages stay exempt.
+    manifest_effective = parse_iso_date(str(manifest.get("contract_effective_date", "")))
+    if (
+        stage in {"G4.7", "closeout"}
+        and manifest_effective is not None
+        and manifest_effective >= KG_RECONCILIATION_EFFECTIVE_DATE
+    ):
+        expected = expected + ["kg-reconciliation.md"]
+
     artifact_rule_map = {
         "g0-assembly-plan-validation.md": "missing_g0_fails",
         "g1-runtime-preflight.md": "runtime_true_missing_preflight_fails",
@@ -1331,6 +1378,7 @@ def validate_required_artifacts(
         "security-review-report.md": "security_required_missing_report_fails",
         "feature-action-execution.md": "missing_feature_action_execution_fails",
         "pm-closeout.md": "missing_pm_closeout_fails",
+        "kg-reconciliation.md": "kg_reconciliation_artifact_missing_fails",
     }
 
     for filename in expected:
