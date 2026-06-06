@@ -335,6 +335,7 @@ class TrackerValidator:
         required_section = _extract_first_section(
             content,
             [
+                "Required Role Matrix",
                 "Required Signoff Roles",
                 "Required Signoff Roles (Set in Planning)",
             ],
@@ -342,7 +343,7 @@ class TrackerValidator:
         if not required_section:
             self.add_error(
                 str(status_file),
-                f"{feature_id} is Done/Archived but missing 'Required Signoff Roles' section",
+                f"{feature_id} is Done/Archived but missing 'Required Role Matrix' / 'Required Signoff Roles' section",
             )
             return
 
@@ -350,7 +351,7 @@ class TrackerValidator:
         if not required_rows:
             self.add_error(
                 str(status_file),
-                f"{feature_id} is Done/Archived but 'Required Signoff Roles' table is missing or malformed",
+                f"{feature_id} is Done/Archived but required role/signoff table is missing or malformed",
             )
             return
 
