@@ -243,6 +243,24 @@ and the fallback for non-MCP harnesses.
 | `kg_validate` | `validate.py` (read-only modes) | `check-drift\|check-symbols\|check-orphans\|check-coverage-gaps` → `{ok, errors, warnings}`; never mutates |
 | `kg_workstate` | `workstate.py` | the only writer; writes **only** under `{PRODUCT_ROOT}/.kg-state/workstate/<session>.yaml` (traversal/KG-dir writes rejected) |
 
+**Launch config — two cases:**
+
+- Session launched **from `{PRODUCT_ROOT}`** → the committed `{PRODUCT_ROOT}/.mcp.json`:
+  ```json
+  { "mcpServers": { "kg": { "command": "python3", "args": ["scripts/kg/mcp_server.py"] } } }
+  ```
+- Session launched **from the `nebula-agents` framework cwd** → the relative path won't
+  resolve, so point at the product copy via `NEBULA_PRODUCT_ROOT` (the same env the
+  framework already uses to locate the product repo — see AGENT-USE.md §resolution):
+  ```json
+  { "mcpServers": { "kg": { "command": "python3",
+      "args": ["${NEBULA_PRODUCT_ROOT}/scripts/kg/mcp_server.py"] } } }
+  ```
+
+The server self-locates the KG from its own file path, so no `PRODUCT_ROOT` env is needed
+at runtime — only the launch path must resolve. MCP-capable harnesses should prefer the
+`kg_*` tools; the CLIs above are the fallback for harnesses without MCP.
+
 ### Other CLIs
 
 | Tool | Purpose |
